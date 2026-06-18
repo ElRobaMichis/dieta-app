@@ -2,7 +2,7 @@
    - Página (HTML): NETWORK-FIRST → si hay internet trae la versión nueva; si no, usa la guardada.
    - Recursos (fuente, íconos): CACHE-FIRST → cargan al instante.
    Nunca toca tu progreso (localStorage): borrar caché NO borra tus datos. */
-const CACHE = 'dieta-v8';
+const CACHE = 'dieta-v9';
 const CORE = [
   './',
   './index.html',

@@ -182,6 +182,12 @@
   .suggest .stag{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px;}
   .suggest b{font-weight:700;}
 
+  /* comer fuera */
+  .fuera-tips{margin-bottom:22px;}
+  .fuera-tips summary{cursor:pointer;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:6px 0;}
+  .fuera-tips ul{margin:8px 0 6px;padding-left:18px;}
+  .fuera-tips li{font-size:12px;color:var(--muted);padding:3px 0;}
+
   footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.7;}
 
   @media(max-width:520px){
@@ -206,6 +212,7 @@
     <button class="tab active" data-tab="plan">Plan</button>
     <button class="tab" data-tab="progreso">Progreso</button>
     <button class="tab" data-tab="recetas">Recetas</button>
+    <button class="tab" data-tab="fuera">Comer fuera</button>
     <button class="tab" data-tab="agua">Agua</button>
     <button class="tab" data-tab="compras">Compras</button>
   </nav>
@@ -262,12 +269,19 @@
     <div id="shop"></div>
   </section>
 
+  <section id="fuera" class="panel">
+    <div class="shop-intro">Para cuando sales a comer con tu pareja. Elige el lugar y te digo lo mejor para no salirte de la dieta. 🟢 fácil · 🟡 con cuidado · 🔴 difícil.</div>
+    <details class="fuera-tips"><summary>Reglas de oro para comer fuera</summary><ul id="fueraTips"></ul></details>
+    <div class="chips" id="fueraChips"></div>
+    <div id="fueraDetail"></div>
+  </section>
+
   <footer>
     Pesa CRUDO o COCIDO según indique cada alimento (40 g arroz crudo ≈ 120 g cocido · el pollo pierde ~25% al cocer).<br>
     Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
     Cara, papada y pecho: NO existe la reducción localizada — bajas grasa de TODO el cuerpo con este mismo plan. Camina a paso MODERADO (respiración acelerada, aún puedes hablar) y baja la SAL: desinflan la cara y reducen más la grasa visceral.<br>
     Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.<br>
-    <b style="color:var(--p)">app v8 · 18-jun-2026</b>
+    <b style="color:var(--p)">app v9 · 18-jun-2026</b>
   </footer>
 </div>
 
@@ -887,6 +901,133 @@ function renderProgress(){
   if(ct && !ciIn.value) ciIn.value=ct.value;
 }
 
+/* ---------- comer fuera ---------- */
+const FCOLOR = { verde:'#3a9e5f', amarillo:'#c98a1e', rojo:'#c0492f' };
+const FBADGE = { verde:'🟢 Fácil', amarillo:'🟡 Con cuidado', rojo:'🔴 Difícil' };
+let selectedFuera = 0;
+const CONSEJOS_FUERA = [
+  "Proteína primero: elige por la proteína magra (30-45 g) y cómela antes que el pan/arroz/tortilla.",
+  "Regla de la vesícula: SÍ a asado/parrilla/plancha/vapor/hervido/sashimi; NO a empanizado/frito/crispy/tempura/katsu/gratinado/a la crema/Alfredo/4 quesos.",
+  "Toda salsa y aderezo APARTE (ahí vive la grasa, el sodio y el azúcar). Cambia los cremosos por mostaza, limón o salsa roja/verde.",
+  "Bebida = agua siempre. Cero refresco, jugo, frappé o agua fresca azucarada. Evita el 'combo' (te encaja un refresco).",
+  "Queso y crema al mínimo; controla el carbo (media porción, pan a la mitad), no lo elimines.",
+  "Comparte y deja; llega sin hambre voraz y empieza con sopa clara o ensalada. Truco de la DOBLE proteína cuando un platillo se queda corto.",
+];
+const FUERA = [
+  {n:"Sushi Roll", c:"verde", t:"Sushi", top:[
+    {d:"Sashimi mixto o de atún (corte fino)", p:"Soya baja en sodio aparte; sin tempura ni spicy mayo; suma edamame para llegar a ~45 g de proteína.", m:[300,40,12,3]},
+    {d:"Teriyaki de pollo", p:"Salsa teriyaki aparte; arroz al vapor (no frito) + ensalada Yasai.", m:[560,45,14,55]} ],
+    ev:"Rolls empanizados/tempura, spicy mayo y salsas cremosas, teppanyaki con mantequilla y arroz frito.",
+    b:"Agua o té verde sin azúcar.", tip:"Pescado crudo o pollo a la plancha + TODA salsa aparte. Empieza con miso o edamame."},
+  {n:"Subway", c:"verde", t:"Sándwiches", top:[
+    {d:"Sub 15 cm de Pollo con DOBLE carne", p:"Pan integral 9 granos, doble pechuga, TODAS las verduras, sin queso o 1 rebanada, mostaza/vinagre (nada de mayo ni cremosos).", m:[400,38,8,44]},
+    {d:"Sub 15 cm de Pavo con doble carne", p:"Igual que el de pollo; el pavo es lo más magro (ojo con el sodio).", m:[370,35,6,42]} ],
+    ev:"Italian BMT, steak & cheese, tocino, pepperoni, atún (lleva mucha mayo), aderezos cremosos, pan blanco.",
+    b:"Agua o agua mineral.", tip:"El truco: DOBLE carne magra (pollo/pavo) + pan integral + muchas verduras + mostaza/vinagre."},
+  {n:"Popeyes", c:"amarillo", t:"Pollo frito", top:[
+    {d:"Blackened Tenders (asadas, 5 pzas)", p:"A la carta (NO el combo frito); salsa aparte; NO empanizadas. ~43 g proteína / 4 g grasa.", m:[280,43,4,4]},
+    {d:"Grilled/Blackened Chicken Sandwich SIN mayo", p:"Versión a la parrilla (no 'crispy'); sin mayonesa; lechuga y jitomate; sin combo de papas.", m:[420,32,13,42]} ],
+    ev:"Todo lo frito/'crispy', coleslaw, puré con gravy, mac & cheese, biscuits, papas Cajún.",
+    b:"Agua (el sodio ya es alto).", tip:"'Blackened/grilled' = asado (tu zona segura); 'crispy/classic' = frito (evítalo). Todo a la carta."},
+  {n:"Casa de Toño", c:"amarillo", t:"Mexicano (pozole/caldos)", top:[
+    {d:"Pozole de maciza o de pollo (grande)", p:"De maciza/pollo (NO surtido), sin crema; carga lechuga, rábano, cebolla y limón; doble carne si quieres más proteína.", m:[520,40,17,48]},
+    {d:"Caldo de pollo con pechuga (sin piel)", p:"Quita la piel; 1-2 tortillas de maíz (no quesadillas fritas). La opción más ligera en grasa.", m:[420,38,12,35]} ],
+    ev:"Quesadillas/flautas/sopes fritos, pozole surtido, enchiladas suizas gratinadas, crema y queso extra.",
+    b:"Agua o jamaica/limón SIN azúcar.", tip:"'Brothy en vez de frito': pozole y caldos dan 36-40 g proteína. Carne magra, sin crema, salsas rojas/verdes."},
+  {n:"Ichi Ramen", c:"amarillo", t:"Ramen", top:[
+    {d:"Shoyu Ramen (cerdo + huevo)", p:"Caldo de soya (no tonkotsu cremoso); 'menos caldo'; huevo extra; SIN combo (trae refresco).", m:[560,34,17,62]},
+    {d:"Ebi Ramen (camarón)", p:"Caldo aparte; suma 1 huevo cocido; camarón al natural (sin tempura).", m:[520,33,13,64]} ],
+    ev:"Tonkatsu/katsu (empanizado frito), bowls con queso, croquetas, gyozas fritas, combos con refresco.",
+    b:"Agua o té verde sin azúcar.", tip:"Caldo claro (shoyu/soya), proteína no empanizada, salsas aparte, no te acabes el caldo (sodio)."},
+  {n:"Lasañería Amore Mío", c:"amarillo", t:"Italiana", top:[
+    {d:"Lasaña de pollo (base roja)", p:"Salsa de tomate (NO Alfredo/crema), poco queso; ensalada con aderezo aparte en vez de pan de ajo.", m:[520,40,20,40]},
+    {d:"Lasaña boloñesa (poca béchamel)", p:"'Poca salsa blanca, menos queso, extra carne'. Comparte si la porción es grande.", m:[580,38,26,42]} ],
+    ev:"4 quesos / Alfredo / a la crema, pan de ajo, lasaña de mar cremosa, postres, doble queso.",
+    b:"Agua o agua mineral con limón.", tip:"El enemigo es la béchamel + queso gratinado. Pide 'poca salsa blanca, menos queso, extra proteína'."},
+  {n:"Starbucks", c:"verde", t:"Café", top:[
+    {d:"Protein Latte sin azúcar (Grande)", p:"Leche descremada, jarabe SIN azúcar, sin crema batida. Suma Protein Cold Foam para 40+ g de proteína.", m:[190,27,5,12]},
+    {d:"Sandwich Pavo y Panela (multigrano)", p:"Aderezo aparte; versión chica. Combínalo con el Protein Latte para ~45 g de proteína.", m:[285,18,9,38]} ],
+    ev:"Frappuccinos, jugos, crema batida y jarabes con azúcar, croissant jamón-queso, baguettes, panqués/galletas.",
+    b:"Protein Latte sin azúcar, o Americano/Cold Brew solo.", tip:"Versión SIN azúcar + leche descremada. La línea Protein es tu mejor jugada aquí."},
+  {n:"La Barra Hot Pot", c:"verde", t:"Hot pot (por peso)", top:[
+    {d:"Tazón de camarón/mariscos + tofu + verduras", p:"150-180 g de mariscos + tofu + muchas verduras; caldo de hongos/jitomate (NO el mala aceitoso); salsa aparte y mínima.", m:[480,44,12,38]},
+    {d:"Tazón de res magra + tofu + verduras", p:"Res en rebanada delgada (no marmoleada/wagyu); poco fideo; salsa aparte.", m:[560,42,20,40]} ],
+    ev:"Caldo mala aceitoso, wagyu/panceta, luncheon meat/SPAM, bolitas/tempura/tofu frito, salsa de cacahuate libre.",
+    b:"Agua o té sin azúcar.", tip:"Pagas por peso: llénalo de PROTEÍNA MAGRA + verduras, poco fideo, salsa aparte, caldo claro. De los más fáciles."},
+  {n:"Monarch Haus", c:"amarillo", t:"Café/brunch coreano", top:[
+    {d:"Tuna sando (poca mayo)", p:"Atún con 'poca mayonesa' o mezcla seca; pan sencillo; sin frituras.", m:[480,28,20,42]},
+    {d:"Sando salado de proteína (pollo/pavo/huevo)", p:"Relleno de proteína (no dulce); sin salsas cremosas extra; mostaza simple.", m:[450,25,17,44]} ],
+    ev:"Cheesecake vasco entero, croissant de matcha, pan dulce coreano, fruit lattes, ades y smoothies.",
+    b:"Americano/espresso o cappuccino con leche light SIN azúcar.", tip:"Es café/brunch (proteína limitada). Ancla en el sando de atún/proteína con salsa aparte; comparte el postre."},
+  {n:"Vulevú Bakery", c:"rojo", t:"Panadería francesa", top:[
+    {d:"Quiche de espinaca y queso de cabra", p:"Como plato principal (no con croissant). Súmale jamón o un café con leche descremada para subir proteína.", m:[420,17,27,26]},
+    {d:"Sándwich de jamón en FOCACCIA (no croissant)", p:"Focaccia (el croissant es casi pura mantequilla); doble jamón; sin mantequilla extra.", m:[480,24,21,46]} ],
+    ev:"Croissants/pain au chocolat, tartas/cheesecake/brioches/madeleines, sodas saborizadas, chocolate caliente.",
+    b:"Espresso o americano sin azúcar.", tip:"Es repostería: ninguna opción llega sola a 30 g proteína. Llega ya con proteína comida y comparte el dulce en 1-2 bocados."},
+  {n:"Mimbre", c:"amarillo", t:"Panadería-brunch", top:[
+    {d:"Huevos rancheros + extra de pavo/pollo", p:"Salsa aparte, sin frijoles con manteca, solo 1 tortilla o sin pan; huevos estrellados/pochados.", m:[520,33,24,38]},
+    {d:"'Molletón' proteico (ciabatta + 2 huevos + pavo, poco queso)", p:"Cambia los molletes 4 quesos por ciabatta + huevo + pavo magro + 1 capa ligera de queso.", m:[540,36,22,45]} ],
+    ev:"Molletes 4 quesos, tlayuda con costilla, milanesa, tocino/chorizo/longaniza, conchas/pan dulce.",
+    b:"Café o matcha sin azúcar, o agua.", tip:"En panadería el enemigo es el pan: pide SIEMPRE un extra de proteína magra (huevo/pavo/pollo/tasajo) y el pan 'a la mitad o aparte'."},
+  {n:"Kübab", c:"verde", t:"Shawarma/kebab", top:[
+    {d:"Plato de shawarma de POLLO + ensalada", p:"Formato PLATO (no wrap); doble pollo; salsa de yogur APARTE y poca; ensalada en vez de papas; carne 'escurrida'.", m:[520,42,18,40]},
+    {d:"Wrap de pollo simple (sin salsa cremosa)", p:"Pollo (no res/mixto); poca salsa de yogur o solo limón; carga verduras; sin papas dentro.", m:[480,35,17,45]} ],
+    ev:"Falafel (frito), salsas cremosas/toum/ajo en cantidad, papas, cordero 'con jugo', wraps cargados.",
+    b:"Agua o ayran sin azúcar.", tip:"Pollo + formato PLATO + salsa aparte + ensalada en vez de papas. Pide la carne 'escurrida'."},
+  {n:"Panya Sam", c:"amarillo", t:"Panadería japonesa", top:[
+    {d:"Yogurt griego natural + sando de atún", p:"Yogur griego natural (granola aparte/poca); atún 'sin mayonesa extra'. ~40 g de proteína.", m:[520,40,14,52]},
+    {d:"Sando de pollo teriyaki", p:"Teriyaki aparte/poca; sin mayo kewpie extra; quita una tapa de pan.", m:[480,34,15,48]} ],
+    ev:"Sandos fritos (katsu/camarón), pancakes japoneses, pan dulce, mayo kewpie en exceso, Calpis/sodas.",
+    b:"Americano/cappuccino o matcha SIN azúcar.", tip:"El enemigo es el pan y las salsas. Sando a la plancha + salsa aparte + yogur griego para subir proteína."},
+  {n:"Jametaro", c:"amarillo", t:"Ramen japonés", top:[
+    {d:"Ramen de Soya con chashu + huevo extra", p:"Caldo de soya/sal (claro); 'sin mantequilla ni aceite extra'; chashu/huevo extra; menos fideo.", m:[580,40,18,56]},
+    {d:"Chashudon (arroz con cerdo)", p:"Salsa robata aparte; doble cerdo; con ensalada simple. Más controlable en grasa.", m:[470,31,13,55]} ],
+    ev:"Karaage/harumaki/gyozas fritas, tonkotsu/miso espeso, yakimeshi (arroz frito), mantequilla extra.",
+    b:"Agua o té verde sin azúcar.", tip:"Caldo claro (sal/soya), sin mantequilla/aceite extra, sube proteína con chashu/huevo, no te acabes el caldo."},
+  {n:"Domino's Pizza", c:"amarillo", t:"Pizza", top:[
+    {d:"3 reb. de Pollo o Jamón en MASA DELGADA, poco queso", p:"Masa delgada crujiente (baja 25-30% kcal/carbos); proteína magra; 'poco queso'; + vegetales; sin orilla rellena ni dips.", m:[580,34,21,62]},
+    {d:"4 reb. de Jamón + champiñón/pimiento, poco queso", p:"Cuando hay más hambre: ~44 g de proteína. Doble vegetal, poco queso, sin orilla rellena.", m:[700,44,24,74]} ],
+    ev:"Pepperoni doble/extra queso, orilla rellena, masa pan/tradicional doble, dips ranch/cremosos.",
+    b:"Agua.", tip:"Masa delgada + proteína magra (pollo/jamón) + poco queso + vegetales. Sin orilla rellena ni dips."},
+  {n:"PF Chang's", c:"verde", t:"Asiática", top:[
+    {d:"Ginger Chicken with Broccoli", p:"Sin arroz o integral aparte (poco); salsa 'light/aparte'. Salteado, no frito. 57 g proteína / 12 g grasa.", m:[480,57,12,41]},
+    {d:"Steamed Salmon with Ginger", p:"Al vapor; salsa aparte; verduras al vapor en vez de arroz.", m:[330,31,19,12]} ],
+    ev:"Todo 'crispy/fried/tempura', crab/cream cheese wontons, Mongolian Beef, Lo Mein/Pad Thai/Fried Rice.",
+    b:"Agua o té sin azúcar.", tip:"Salsas SIEMPRE aparte (ahí va el sodio/azúcar). Empieza con sopa clara. El Ginger Chicken es la joya del menú."},
+  {n:"Toks", c:"verde", t:"Mexicano (cadena)", top:[
+    {d:"Ensalada Alta en Fibra y Proteína (con pollo)", p:"Aderezo aparte (vinagreta, no cremoso); pollo a la plancha. La más limpia: 36 g proteína / 12 g grasa.", m:[343,36,12,23]},
+    {d:"Pechuga de Pollo en su Jugo", p:"Verduras al vapor o ensalada en vez de papas/arroz; cremas aparte.", m:[359,34,15,22]} ],
+    ev:"Pescado teriyaki, chilaquiles, mole, club sándwich, empanizados/a la crema, postres y pan dulce.",
+    b:"Agua o agua fresca SIN azúcar.", tip:"Proteína a la plancha/en su jugo + verduras al vapor (no papas) + aderezos aparte. Empieza con consomé."},
+  {n:"VIPS", c:"verde", t:"Mexicano (cadena)", top:[
+    {d:"Pechugas con Cottage", p:"A la plancha sin mantequilla extra; verduras al vapor; aderezo aparte. 43 g proteína / 8 g grasa.", m:[298,43,8,14]},
+    {d:"Pechuga Asada (200 g) con ensalada y verduras", p:"De las más limpias; aderezo aparte; sin sal extra en las verduras.", m:[456,48,16,22]} ],
+    ev:"Molcajete, New York Grill, pasta cremosa, milanesas/burritos, club sándwich, chilaquiles/suizas con crema.",
+    b:"Agua o té/café sin azúcar.", tip:"Proteína a la parrilla + verduras (no papa/puré) + aderezos aparte. La sopa pídela caldosa, no de crema."},
+];
+
+function renderFuera(){
+  document.getElementById("fueraTips").innerHTML = CONSEJOS_FUERA.map(function(t){return '<li>'+t+'</li>';}).join("");
+  document.getElementById("fueraChips").innerHTML = FUERA.map(function(f,i){return '<button class="chip" data-fi="'+i+'"><span style="color:'+FCOLOR[f.c]+'">●</span> '+f.n+'</button>';}).join("");
+  document.querySelectorAll("#fueraChips .chip").forEach(function(c){ c.addEventListener("click",function(){ renderFueraDetail(+c.dataset.fi); }); });
+  renderFueraDetail(selectedFuera);
+}
+function renderFueraDetail(i){
+  selectedFuera = i;
+  var f = FUERA[i];
+  var dishes = f.top.map(function(d){
+    return '<div class="meal"><div class="meal-head"><span class="meal-name">'+d.d+'</span><span class="meal-rule"></span><span class="meal-macros">'+d.m[0]+' kcal · '+d.m[1]+'P · '+d.m[2]+'G · '+d.m[3]+'C</span></div><div class="prep"><b>Cómo pedir:</b> '+d.p+'</div></div>';
+  }).join("");
+  document.getElementById("fueraDetail").innerHTML =
+    '<div class="day-head"><span class="day-name">'+f.n+'</span><span class="day-kcal">'+FBADGE[f.c]+'</span></div>'+
+    '<div class="macroline">'+f.t+'</div>'+
+    dishes+
+    '<div class="prep" style="border-color:var(--f)"><b>Evita:</b> '+f.ev+'</div>'+
+    '<div class="prep" style="border-color:var(--c)"><b>Bebida:</b> '+f.b+'</div>'+
+    '<div class="prep"><b>Tip:</b> '+f.tip+'</div>';
+  document.querySelectorAll("#fueraChips .chip").forEach(function(c,idx){ c.classList.toggle("active",idx===i); });
+}
+
 /* ---------- tema ---------- */
 function setTheme(dark){
   document.documentElement.classList.toggle("dark",dark);
@@ -922,6 +1063,7 @@ renderRecipes();
 renderShop();
 renderWater();
 renderProgress();
+renderFuera();
 </script>
 <script>
 /* Service worker: funciona sin internet y se ACTUALIZA SOLO al abrir con conexión.
