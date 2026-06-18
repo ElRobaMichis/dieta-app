@@ -1,5 +1,5 @@
 /* Service worker — guarda la app para usarla sin internet (offline-first) */
-const CACHE = 'dieta-v4';
+const CACHE = 'dieta-v5';
 const CORE = [
   './',
   './index.html',
