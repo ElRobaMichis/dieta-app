@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dieta · Agustín</title>
+<meta name="theme-color" content="#16161a">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dieta">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" type="image/png" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --ink:#16161a;
+    --muted:#9a9a9a;
+    --line:#ececec;
+    --line2:#1a1a1a;
+    --on-line2:#ffffff;
+    --glass-border:#d2d2d2;
+    --water:#5b8fd1;
+    --p:#2f6f4f;
+    --f:#a86a2d;
+    --c:#3a5a8c;
+  }
+  :root.dark{
+    --bg:#121214;
+    --ink:#e7e7e7;
+    --muted:#7d7d80;
+    --line:#2a2a2e;
+    --line2:#e7e7e7;
+    --on-line2:#121214;
+    --glass-border:#3a3a3e;
+    --water:#5e93d6;
+    --p:#74c39a;
+    --f:#d9a566;
+    --c:#84abe2;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);}
+  body{
+    font-family:'JetBrains Mono',ui-monospace,'IBM Plex Mono',Menlo,Consolas,monospace;
+    color:var(--ink);
+    font-size:14px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+    min-height:100dvh;
+    transition:background .25s ease,color .25s ease;
+  }
+  .wrap{max-width:760px;margin:0 auto;padding:44px 22px 80px;}
+
+  /* header */
+  header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:26px;}
+  .title{font-size:13px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;}
+  .sub{color:var(--muted);font-size:11.5px;letter-spacing:.04em;margin-top:6px;}
+  .theme-btn{
+    font-family:inherit;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    background:none;border:1px solid var(--line);color:var(--muted);
+    padding:6px 11px;border-radius:2px;cursor:pointer;white-space:nowrap;transition:all .15s;
+  }
+  .theme-btn:hover{border-color:var(--line2);color:var(--ink);}
+
+  /* tabs */
+  .tabs{display:flex;flex-wrap:wrap;gap:24px;border-bottom:1px solid var(--line);margin-bottom:30px;}
+  .tab{
+    background:none;border:none;padding:0 0 12px;margin:0;cursor:pointer;
+    font-family:inherit;font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color .15s;
+  }
+  .tab:hover{color:var(--ink);}
+  .tab.active{color:var(--ink);border-bottom-color:var(--line2);}
+
+  .panel{display:none;}
+  .panel.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
+
+  /* day chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:28px;}
+  .chip{
+    font-family:inherit;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    background:none;border:1px solid var(--line);color:var(--muted);
+    padding:7px 13px;border-radius:2px;cursor:pointer;transition:all .15s;
+  }
+  .chip:hover{border-color:var(--line2);color:var(--ink);}
+  .chip.active{background:var(--line2);border-color:var(--line2);color:var(--on-line2);}
+
+  /* day header */
+  .day-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:4px;}
+  .day-name{font-size:18px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+  .day-kcal{font-size:13px;color:var(--muted);}
+  .day-kcal b{color:var(--ink);font-weight:700;}
+  .macroline{font-size:11.5px;color:var(--muted);margin-bottom:26px;letter-spacing:.02em;}
+  .macroline .mp{color:var(--p);} .macroline .mf{color:var(--f);} .macroline .mc{color:var(--c);}
+
+  /* meal */
+  .meal{margin-bottom:24px;}
+  .meal-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+  .bf-select{font-family:inherit;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:2px;padding:5px 8px;cursor:pointer;max-width:70%;}
+  .bf-select:hover{border-color:var(--line2);}
+  .bf-select:focus{outline:none;border-color:var(--line2);}
+  .meal-name{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;white-space:nowrap;}
+  .meal-rule{flex:1;height:1px;background:var(--line);}
+  .meal-macros{font-size:10.5px;color:var(--muted);white-space:nowrap;}
+  .items{margin:0;padding:0;list-style:none;}
+  .item{display:flex;gap:12px;padding:2.5px 0;}
+  .qty{flex:0 0 96px;text-align:right;color:var(--ink);font-weight:500;}
+  .food{flex:1;color:var(--ink);opacity:.88;}
+  .food .tag{color:var(--muted);font-size:11px;opacity:1;}
+  .prep{margin-top:9px;font-size:12px;color:var(--muted);border-left:2px solid var(--line);padding:2px 0 2px 12px;}
+  .prep b{color:var(--ink);font-weight:500;opacity:.85;}
+
+  /* recetas */
+  .recipe{margin-bottom:30px;}
+  .r-name{font-size:14px;font-weight:700;letter-spacing:.03em;margin-bottom:3px;}
+  .r-meta{font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .r-sub{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin:14px 0 7px;}
+  .r-ing{list-style:none;margin:0;padding:0;}
+  .r-ing li{display:flex;gap:12px;padding:2px 0;}
+  .r-steps{margin:0;padding-left:20px;}
+  .r-steps li{padding:3px 0;}
+  .r-tip{margin-top:8px;font-size:12px;color:var(--muted);border-left:2px solid var(--line);padding:2px 0 2px 12px;}
+  .r-tip b{color:var(--ink);opacity:.85;font-weight:500;}
+
+  /* shopping */
+  .shop-intro{font-size:12px;color:var(--muted);margin-bottom:22px;}
+  .shop-actions{margin-bottom:6px;}
+  .lnk{background:none;border:none;font-family:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;padding:0;border-bottom:1px solid var(--line);}
+  .lnk:hover{color:var(--ink);border-bottom-color:var(--line2);}
+  .cat{margin-bottom:24px;}
+  .cat-name{font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .check{display:flex;align-items:flex-start;gap:11px;padding:4px 0;cursor:pointer;user-select:none;}
+  .check input{
+    appearance:none;-webkit-appearance:none;margin:3px 0 0;flex:0 0 15px;width:15px;height:15px;
+    border:1px solid var(--glass-border);border-radius:2px;cursor:pointer;position:relative;background:var(--bg);transition:all .12s;
+  }
+  .check input:checked{background:var(--line2);border-color:var(--line2);}
+  .check input:checked::after{content:"";position:absolute;left:4.5px;top:1px;width:4px;height:8px;border:solid var(--on-line2);border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .check .lbl{flex:1;}
+  .check .lbl .q{color:var(--muted);}
+  .check input:checked ~ .lbl{color:var(--muted);text-decoration:line-through;}
+
+  /* agua */
+  .water-goal{font-size:13px;margin-bottom:4px;}
+  .water-goal .muted{color:var(--muted);}
+  .glasses{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 18px;}
+  .glass{width:30px;height:42px;border:1.5px solid var(--glass-border);border-radius:3px 3px 8px 8px;background:transparent;cursor:pointer;padding:0;transition:all .15s;}
+  .glass:hover{border-color:var(--line2);}
+  .glass.full{background:var(--water);border-color:var(--water);}
+  .water-count{font-size:16px;margin-bottom:6px;}
+  .water-count b{font-weight:700;}
+  .water-msg{font-size:12px;color:var(--p);min-height:18px;margin-bottom:16px;}
+  .water-note{font-size:12px;color:var(--muted);margin-top:16px;border-left:2px solid var(--line);padding:2px 0 2px 12px;}
+
+  /* progreso */
+  .field{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .field .lab{font-size:12px;color:var(--muted);min-width:130px;}
+  .unit{color:var(--muted);font-size:12px;}
+  input[type=number]{font-family:inherit;font-size:14px;background:var(--bg);color:var(--ink);
+    border:1px solid var(--glass-border);border-radius:2px;padding:7px 9px;width:96px;}
+  input[type=number]:focus{outline:none;border-color:var(--line2);}
+  .btn{font-family:inherit;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    background:var(--line2);color:var(--on-line2);border:none;border-radius:2px;padding:8px 14px;cursor:pointer;transition:opacity .15s;}
+  .btn:hover{opacity:.82;}
+  .prog-stats{display:flex;flex-wrap:wrap;gap:28px;margin:24px 0 18px;}
+  .stat .v{font-size:22px;font-weight:700;line-height:1.1;}
+  .stat .v .unit{font-size:12px;font-weight:400;}
+  .stat .k{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  .stat .d{font-size:11px;margin-top:3px;}
+  .metric-chips{display:flex;gap:8px;margin-bottom:12px;}
+  .chart{border:1px solid var(--line);border-radius:3px;padding:10px 8px 4px;margin-bottom:6px;}
+  .chart svg{width:100%;height:auto;display:block;}
+  .axis{fill:var(--muted);font-size:9px;font-family:inherit;}
+  .suggest{border:1px solid var(--line);border-radius:3px;padding:14px 16px;margin-top:18px;font-size:13px;line-height:1.65;}
+  .suggest .stag{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:7px;}
+  .suggest b{font-weight:700;}
+
+  footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);line-height:1.7;}
+
+  @media(max-width:520px){
+    .wrap{padding:30px 16px 70px;}
+    .qty{flex-basis:80px;}
+    .tabs{gap:16px;}
+    .day-name{font-size:16px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="head-left">
+      <div class="title">Dieta · Agustín</div>
+      <div class="sub">~1,650 kcal · 120-130 g proteína · grasa repartida · objetivo: bajar cintura</div>
+    </div>
+    <button class="theme-btn" id="theme">Oscuro</button>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="plan">Plan</button>
+    <button class="tab" data-tab="progreso">Progreso</button>
+    <button class="tab" data-tab="recetas">Recetas</button>
+    <button class="tab" data-tab="agua">Agua</button>
+    <button class="tab" data-tab="compras">Compras</button>
+  </nav>
+
+  <section id="plan" class="panel active">
+    <div class="chips" id="chips"></div>
+    <div id="day"></div>
+  </section>
+
+  <section id="progreso" class="panel">
+    <div class="field">
+      <span class="lab">Peso de hoy</span>
+      <input type="number" id="wIn" step="0.05" inputmode="decimal" placeholder="kg">
+      <span class="unit">kg</span>
+      <button class="btn" id="wSave">Guardar</button>
+    </div>
+    <div class="field">
+      <span class="lab">Cintura (semanal)</span>
+      <input type="number" id="ciIn" step="0.5" inputmode="decimal" placeholder="cm">
+      <span class="unit">cm</span>
+      <button class="btn" id="ciSave">Guardar</button>
+    </div>
+
+    <div class="prog-stats" id="progStats"></div>
+
+    <div class="metric-chips">
+      <button class="chip active" data-metric="peso">Peso</button>
+      <button class="chip" data-metric="cintura">Cintura</button>
+    </div>
+    <div class="chart" id="chart"></div>
+
+    <div class="suggest" id="suggest"></div>
+
+    <div class="shop-actions" style="margin-top:18px"><button class="lnk" id="progReset">Borrar registros</button></div>
+    <div class="water-note">Pésate en ayunas, con la misma ropa, después de ir al baño. Mídete la cintura a la altura del ombligo 1×/semana. El promedio importa más que el dato de un solo día.</div>
+  </section>
+
+  <section id="recetas" class="panel">
+    <div id="recipes"></div>
+  </section>
+
+  <section id="agua" class="panel">
+    <div class="water-goal">Meta del día: <b>2.5 L</b> · 10 vasos de 250 ml <span class="muted">(mínimo 2 L)</span></div>
+    <div class="glasses" id="glasses"></div>
+    <div class="water-count" id="waterCount"></div>
+    <div class="water-msg" id="waterMsg"></div>
+    <div class="shop-actions"><button class="lnk" id="waterReset">Reiniciar día</button></div>
+    <div class="water-note">Toca un vaso para llenar hasta ahí (toca el último lleno para quitarlo). Truco: 1 vaso al despertar, 1 antes de cada comida y sorbos mientras trabajas. Se reinicia solo cada día.</div>
+  </section>
+
+  <section id="compras" class="panel">
+    <div class="shop-intro">Compra semanal (cubre los 7 días). La sección de <b>Desayuno</b> se ajusta sola al que elijas en el Plan. Los checks se guardan en este dispositivo.</div>
+    <div class="shop-actions"><button class="lnk" id="reset">Limpiar todo</button></div>
+    <div id="shop"></div>
+  </section>
+
+  <footer>
+    Pesa CRUDO o COCIDO según indique cada alimento (40 g arroz crudo ≈ 120 g cocido · el pollo pierde ~25% al cocer).<br>
+    Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
+    Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.
+  </footer>
+</div>
+
+<script>
+/* ---------- bloques de comida reutilizables ---------- */
+const M = {
+  desayuno:{name:"Desayuno", m:{kcal:454,p:30,f:12.6,c:56.6},
+    items:[
+      {q:"40 g", food:"Avena en hojuelas", tag:"cruda"},
+      {q:"150 ml", food:"Leche semidescremada"},
+      {q:"120 g", food:"Yogur natural bajo en grasa"},
+      {q:"60 g", food:"Plátano", tag:"≈1 chico"},
+      {q:"1 pza", food:"Huevo entero", tag:"50 g"},
+      {q:"60 g", food:"Clara de huevo", tag:"≈2 claras"},
+    ],
+    prep:"Cuece la avena con la leche hasta papilla. Aparte revuelve el huevo + las claras sin aceite (sartén antiadherente o espray). Sirve el yogur con el plátano picado encima."},
+
+  snack:{name:"Snack", m:{kcal:228,p:14.8,f:10.7,c:20.6},
+    items:[
+      {q:"80 g", food:"Queso panela"},
+      {q:"130 g", food:"Manzana", tag:"1 mediana, con cáscara"},
+    ],
+    prep:"Panela en cubos o a la plancha sin aceite. La manzana entera (la cáscara es fibra)."},
+
+  comidaBase:{name:"Comida", m:{kcal:457,p:39,f:9.4,c:53.4},
+    items:[
+      {q:"90 g", food:"Pechuga de pollo", tag:"cocida"},
+      {q:"100 g", food:"Arroz blanco", tag:"cocido · ≈33 g crudo"},
+      {q:"90 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"150 g", food:"Verduras", tag:"zanahoria/calabaza/ejote"},
+      {q:"5 g", food:"Aceite de oliva", tag:"1 cdita"},
+    ],
+    prep:"Pollo y arroz cocidos en lote del domingo — pésalos YA COCIDOS. Saltea las verduras con la cucharadita de aceite. Frijol caliente escurrido."},
+
+  comidaTacos:{name:"Comida · Tacos de pollo", m:{kcal:517,p:43.5,f:10.9,c:63.5},
+    items:[
+      {q:"100 g", food:"Pechuga de pollo deshebrada", tag:"cocida"},
+      {q:"90 g", food:"Tortilla de maíz", tag:"3 piezas"},
+      {q:"80 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"100 g", food:"Verduras"},
+      {q:"30 g", food:"Aguacate"},
+    ],
+    prep:"Calienta las tortillas y rellénalas con el pollo deshebrado, frijol y verduras. Aguacate encima, salsa al gusto. Sin crema ni aceite extra."},
+
+  comidaTostadas:{name:"Comida · Tostadas de atún", m:{kcal:450,p:43.1,f:8.7,c:53.4},
+    items:[
+      {q:"120 g", food:"Atún en agua", tag:"1 lata, escurrido"},
+      {q:"60 g", food:"Tostada de maíz horneada", tag:"2 piezas"},
+      {q:"90 g", food:"Frijol de la olla", tag:"escurrido, para untar"},
+      {q:"120 g", food:"Verduras", tag:"lechuga/jitomate/pepino"},
+      {q:"35 g", food:"Aguacate"},
+    ],
+    prep:"Escurre bien el atún y mézclalo con limón, cebolla y cilantro (estilo ceviche — así casi no sabe a pescado). Unta frijol en la tostada, pon el atún, verduras y aguacate."},
+
+  comidaTilapiaArroz:{name:"Comida · Tilapia con arroz", m:{kcal:496,p:45.1,f:8.7,c:60.2},
+    items:[
+      {q:"130 g", food:"Tilapia", tag:"cocida"},
+      {q:"130 g", food:"Arroz blanco", tag:"cocido · ≈43 g crudo"},
+      {q:"80 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"150 g", food:"Verduras"},
+      {q:"4 g", food:"Aceite de oliva", tag:"cdita rasa"},
+    ],
+    prep:"Tilapia a la plancha con limón. Arroz de la arrocera. Verduras salteadas con la cucharadita rasa de aceite."},
+
+  cenaBase:{name:"Cena", m:{kcal:364,p:37.6,f:11,c:33.6},
+    items:[
+      {q:"110 g", food:"Tilapia", tag:"cocida"},
+      {q:"150 g", food:"Nopal", tag:"cocido"},
+      {q:"70 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"30 g", food:"Tortilla de maíz", tag:"1 pieza"},
+      {q:"45 g", food:"Aguacate"},
+    ],
+    prep:"Tilapia a la plancha o al vapor con limón. Nopales asados, frijol escurrido, 1 tortilla y el aguacate (la grasa de la noche, repartida)."},
+
+  cenaHuevos:{name:"Cena · Huevos con panela", m:{kcal:302,p:30.6,f:11.3,c:20.4},
+    items:[
+      {q:"1 pza", food:"Huevo entero", tag:"50 g"},
+      {q:"120 g", food:"Clara de huevo", tag:"≈4 claras"},
+      {q:"40 g", food:"Queso panela"},
+      {q:"150 g", food:"Nopal", tag:"cocido"},
+      {q:"30 g", food:"Tortilla de maíz", tag:"1 pieza"},
+    ],
+    prep:"Revuelve el huevo + las claras con cubos de panela. Acompaña con nopales asados y 1 tortilla."},
+
+  cenaPolloCalab:{name:"Cena · Pollo con calabacitas", m:{kcal:379,p:43.1,f:10.9,c:29.2},
+    items:[
+      {q:"110 g", food:"Pechuga de pollo deshebrada", tag:"cocida"},
+      {q:"200 g", food:"Calabacitas / verdura"},
+      {q:"70 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"40 g", food:"Aguacate"},
+    ],
+    prep:"Guisa el pollo deshebrado con calabacitas y verdura abundante. Frijol escurrido y aguacate. Cena baja en carbohidratos."},
+
+  cenaAtun:{name:"Cena · Atún con verduras", m:{kcal:317,p:36.7,f:8.6,c:26.1},
+    items:[
+      {q:"110 g", food:"Atún en agua", tag:"escurrido"},
+      {q:"150 g", food:"Verduras"},
+      {q:"70 g", food:"Frijol de la olla", tag:"escurrido"},
+      {q:"45 g", food:"Aguacate"},
+    ],
+    prep:"Saltea el atún con las verduras, agrega el frijol escurrido y el aguacate. Cena ligera y rápida."},
+
+  antojoChoc:{name:"Antojo planeado", m:{kcal:120,p:1.6,f:8.6,c:9.2},
+    items:[{q:"20 g", food:"Chocolate 70%", tag:"≈3 cuadritos"}],
+    prep:"Después de la comida o la cena. Pésalo en la báscula y guárdalo separado — nunca comas del paquete."},
+
+  antojoMazapan:{name:"Antojo planeado", m:{kcal:146,p:3.6,f:8.5,c:14},
+    items:[{q:"28 g", food:"Mazapán", tag:"1 pieza"}],
+    prep:"Saboréalo sentado y sin pantalla. Como es más graso, hoy la cena ya es ligera en grasa: respeta el reparto."},
+
+  antojoFresas:{name:"Antojo planeado", m:{kcal:124,p:2.2,f:4.9,c:20},
+    items:[
+      {q:"200 g", food:"Fresas"},
+      {q:"10 g", food:"Chocolate 70%", tag:"derretido encima"},
+    ],
+    prep:"Fresas con el chocolate derretido encima. Opción dulce, alta en volumen y baja en grasa."},
+};
+
+/* ---------- los 7 días ---------- */
+const DAYS = [
+  {dia:"Lunes",     abbr:"Lun", comida:M.comidaBase,         cena:M.cenaBase,        antojo:M.antojoChoc,    t:{kcal:1623,p:123,  f:52.3,c:173.4}},
+  {dia:"Martes",    abbr:"Mar", comida:M.comidaTacos,        cena:M.cenaHuevos,      antojo:M.antojoChoc,    t:{kcal:1621,p:120.5,f:54.1,c:170.3}},
+  {dia:"Miércoles", abbr:"Mié", comida:M.comidaTilapiaArroz, cena:M.cenaHuevos,      antojo:M.antojoChoc,    t:{kcal:1600,p:122.1,f:51.9,c:167.0}},
+  {dia:"Jueves",    abbr:"Jue", comida:M.comidaBase,         cena:M.cenaPolloCalab,  antojo:M.antojoMazapan, t:{kcal:1664,p:130.5,f:52.1,c:173.8}},
+  {dia:"Viernes",   abbr:"Vie", comida:M.comidaTostadas,     cena:M.cenaBase,        antojo:M.antojoChoc,    t:{kcal:1616,p:127.1,f:51.6,c:173.4}},
+  {dia:"Sábado",    abbr:"Sáb", comida:M.comidaBase,         cena:M.cenaAtun,        antojo:M.antojoChoc,    t:{kcal:1576,p:122.1,f:50.0,c:165.9}},
+  {dia:"Domingo",   abbr:"Dom", comida:M.comidaTostadas,     cena:M.cenaHuevos,      antojo:M.antojoFresas,  t:{kcal:1558,p:120.7,f:48.2,c:171.0}},
+];
+
+/* ---------- desayunos intercambiables (analizados y ajustados) ---------- */
+const BREAKFASTS = [
+  { id:"base", optlabel:"Base · avena, huevo y yogur", m:{kcal:454,p:30,f:12.6,c:56.6},
+    items:[
+      {q:"40 g",food:"Avena en hojuelas",tag:"cruda"},{q:"150 ml",food:"Leche semidescremada"},
+      {q:"120 g",food:"Yogur natural bajo en grasa"},{q:"60 g",food:"Plátano"},
+      {q:"1 pza",food:"Huevo entero",tag:"50 g"},{q:"60 g",food:"Clara de huevo",tag:"≈2 claras"},
+    ],
+    prep:"Cuece la avena con la leche. Revuelve el huevo + las claras sin aceite. Sirve el yogur con el plátano encima." },
+
+  { id:"huevos", optlabel:"Huevos con nopal y tortilla ★", m:{kcal:429,p:35,f:12,c:50},
+    items:[
+      {q:"1 pza",food:"Huevo entero",tag:"50 g"},{q:"200 g",food:"Clara de huevo",tag:"≈6-7 claras"},
+      {q:"60 g",food:"Tortilla de maíz",tag:"2 pzas"},{q:"120 g",food:"Nopal",tag:"cocido"},
+      {q:"30 g",food:"Aguacate"},{q:"130 g",food:"Papaya o manzana"},
+    ],
+    prep:"Revuelve el huevo + claras sin aceite (spray o antiadherente). Acompaña con nopales asados, las tortillas, el aguacate y la fruta.",
+    note:"Tu receta original, con más claras y 2 tortillas para llegar a 35 g de proteína. La más sólida y sin riesgo de etiqueta." },
+
+  { id:"pancakes", optlabel:"Pancakes de plátano ★", m:{kcal:424,p:37,f:8,c:50},
+    items:[
+      {q:"60 g",food:"Plátano"},{q:"1 pza",food:"Huevo entero"},{q:"100 g",food:"Clara de huevo"},
+      {q:"30 g",food:"Harina de avena"},{q:"150 g",food:"Yogur griego",tag:"alto en proteína"},
+      {q:"80 g",food:"Frutos rojos",tag:"encima"},{q:"—",food:"Polvo para hornear, canela, vainilla"},
+    ],
+    prep:"Machaca el plátano y mézclalo con el huevo, las claras, la harina de avena, polvo para hornear, canela y vainilla. Cocina los pancakes en sartén antiadherente. Sirve con el yogur y los frutos rojos encima.",
+    note:"Yogur griego subido a 150 g (alto en proteína) para asegurar ~37 g. Si tu yogur es básico (Lala/Oikos ~7P), añade 1 clara." },
+
+  { id:"avena", optlabel:"Avena trasnochada con cacao", m:{kcal:462,p:31,f:10.5,c:64},
+    items:[
+      {q:"40 g",food:"Avena en hojuelas",tag:"cruda"},{q:"250 ml",food:"Leche semidescremada"},
+      {q:"60 g",food:"Plátano"},{q:"6 g",food:"Cacao sin azúcar"},{q:"5 g",food:"Chía"},
+      {q:"150 g",food:"Yogur griego",tag:"alto en proteína (o 1 scoop de proteína)"},
+    ],
+    prep:"Mezcla todo en un frasco la noche anterior y refrigera. En la mañana, listo para comer.",
+    note:"Tu base tenía solo 17 g de proteína; le sumé yogur griego (o 1 scoop ~20 g) y bajé el plátano para llegar a ~31 g sin disparar las calorías." },
+
+  { id:"sandwich", optlabel:"Sándwich de pavo (sin matcha)", m:{kcal:414,p:34,f:7.5,c:55},
+    items:[
+      {q:"250 ml",food:"Leche semidescremada"},{q:"1 taza",food:"Té rooibos o manzanilla",tag:"en vez de matcha"},
+      {q:"2 reb",food:"Pan Bimbo Cero Cero"},{q:"90 g",food:"Jamón de pavo",tag:"San Rafael"},
+      {q:"1",food:"Clara de huevo",tag:"cocida"},{q:"130 g",food:"Manzana"},
+    ],
+    prep:"Arma el sándwich con el pan, el jamón de pavo y la clara. Acompaña con la leche, el té y la manzana.",
+    note:"Cambié el matcha por rooibos/manzanilla (el matcha tiene cafeína y tu ansiedad importa). Usa jamón San Rafael, rinde más proteína que FUD." },
+
+  { id:"licuado", optlabel:"Licuado de frutos rojos", m:{kcal:370,p:33.5,f:10,c:38},
+    items:[
+      {q:"150 ml",food:"Leche semidescremada"},{q:"150 g",food:"Yogur griego",tag:"0% alto en proteína"},
+      {q:"100 g",food:"Frutos rojos"},{q:"10 g",food:"Crema de cacahuate"},{q:"15 g",food:"Avena"},
+      {q:"10 g",food:"Proteína en polvo",tag:"opcional, solo para desayuno"},{q:"—",food:"Hielo"},
+    ],
+    prep:"Licúa todo con hielo. Como DESAYUNO añade la proteína en polvo (~33 g proteína); como SNACK grande, déjalo sin polvo (~25 g).",
+    note:"Recalculado: el yogur real rinde menos proteína de lo que parecía. Verifica que el yogur sea 0% en grasa (por tu vesícula)." },
+
+  { id:"molletes", optlabel:"Molletes (reformulados)", m:{kcal:380,p:31,f:9.7,c:43},
+    items:[
+      {q:"50 g",food:"Pan integral",tag:"2 reb, en vez de bolillo"},{q:"90 g",food:"Frijoles cocidos"},
+      {q:"40 g",food:"Queso panela light"},{q:"40 g",food:"Jamón de pavo",tag:"San Rafael"},
+      {q:"60 g",food:"Clara de huevo"},{q:"25 g",food:"Aguacate"},
+    ],
+    prep:"Tuesta el pan, unta los frijoles, agrega la panela, el jamón y la clara revuelta. Aguacate encima.",
+    note:"Reformulado: la proteína viene del pavo + claras (no de subir el queso, que dispararía la grasa). Bolillo → pan integral por más fibra." },
+
+  { id:"tortilla", optlabel:"Tortilla con panela y pavo", m:{kcal:448,p:31,f:12,c:54},
+    items:[
+      {q:"105 g",food:"Tortilla de maíz",tag:"3-4 pzas"},{q:"50 g",food:"Queso panela light"},
+      {q:"100 g",food:"Jamón de pavo",tag:"San Rafael"},{q:"25 g",food:"Aguacate"},
+    ],
+    prep:"Calienta las tortillas y arma con la panela, el jamón y el aguacate.",
+    note:"Subí el pavo a 100 g (el ajuste anterior no llegaba a 30 g de proteína). Asegúrate de que la panela sea LIGHT: la regular dispara la grasa." },
+];
+
+/* ---------- recetas ---------- */
+const RECIPES = [
+  {name:"Arroz frito proteico (arrocera)", meta:"Rinde 2-3 porciones · ~400-480 kcal y 35-40 g proteína por porción",
+   ing:[
+     {q:"1 taza", food:"Arroz cocido", tag:"mejor del día anterior, frío"},
+     {q:"200-250 g", food:"Pollo en cubos", tag:"o camarón, o 2-3 huevos"},
+     {q:"2-3 tazas", food:"Verdura", tag:"zanahoria, chícharo, ejote, pimiento, cebollín — sin champiñón"},
+     {q:"1 cdita", food:"Aceite de sésamo", tag:"al final"},
+     {q:"1.5-2 cdas", food:"Salsa de soya", tag:"baja en sodio"},
+     {q:"1 cda", food:"Salsa de ostra"},
+     {q:"al gusto", food:"Ajo, jengibre, chile"},
+   ],
+   steps:[
+     "Usa arroz frío del día anterior: queda suelto y absorbe menos aceite.",
+     "En la arrocera (modo saltear) o sartén, sella el pollo en cubos sin aceite hasta dorar; sácalo. Si tu arrocera solo cuece, haz el pollo aparte a la plancha.",
+     "Echa ajo y jengibre, luego la verdura dura (zanahoria, ejote) 3-4 min; después la suave.",
+     "Si usas huevo, revuélvelo a un lado de la arrocera.",
+     "Agrega el arroz frío, el pollo, la soya baja en sodio y la salsa de ostra. Mezcla bien.",
+     "APAGA y recién ahí agrega la cucharadita de aceite de sésamo y el cebollín (crudo da todo el aroma con mínima grasa).",
+     "Divide en 2-3 tuppers para tus días de trabajo.",
+   ],
+   tip:"Tu versión original es rica pero casi sin proteína; aquí sube a 35-40 g y el aceite baja de varias cucharadas (~300 kcal) a ~45 kcal."},
+
+  {name:"Ceviche / tostadas de atún", meta:"1 comida · ~450 kcal y 43 g proteína",
+   ing:[
+     {q:"120 g", food:"Atún en agua", tag:"1 lata, bien escurrido"},
+     {q:"1/4", food:"Cebolla morada", tag:"picada finita"},
+     {q:"2-3", food:"Limones", tag:"el jugo"},
+     {q:"al gusto", food:"Cilantro, chile, sal"},
+     {q:"90 g", food:"Frijol de la olla", tag:"para untar"},
+     {q:"60 g", food:"Tostada horneada", tag:"2 piezas"},
+     {q:"35 g", food:"Aguacate"},
+   ],
+   steps:[
+     "Escurre MUY bien el atún (menos líquido = mejor sabor).",
+     "Mézclalo con cebolla morada, cilantro, jugo de limón, chile y sal. Deja reposar 5 min.",
+     "Unta el frijol en la tostada horneada.",
+     "Pon el atún encima y agrega el aguacate en rebanadas. Listo.",
+   ],
+   tip:"El limón + cebolla + cilantro hacen que casi no sepa a pescado — perfecto para tu primer atún."},
+
+  {name:"Batch cooking del domingo", meta:"Base de la semana · cocinas una vez, comes toda la semana",
+   ing:[
+     {q:"~0.7 kg", food:"Pechuga de pollo"},
+     {q:"250 g", food:"Arroz", tag:"crudo"},
+     {q:"0.4 kg", food:"Frijol seco"},
+     {q:"~0.8 kg", food:"Nopal"},
+   ],
+   steps:[
+     "POLLO: cuécelo a la plancha o hervido y deshébralo. Porciónalo en tuppers de 90-100 g ya cocido.",
+     "ARROZ: hazlo en la arrocera. Porciona 100 g cocido por comida y refrigera (el arroz frío sirve para el arroz frito).",
+     "FRIJOL: de la olla con cebolla y poca sal, SIN manteca. Guárdalo con poco caldo; escúrrelo al servir.",
+     "NOPAL: límpialo, ásalo o hiérvelo con sal y pícalo. Guárdalo en el refri.",
+     "Etiqueta los tuppers por día. Entre semana solo calientas. La tilapia sí hazla fresca o cada 2-3 días.",
+   ],
+   tip:"Pésalo YA COCIDO cuando el plan diga 'cocido'. Esto es lo que hace que comer bien te cueste 2 minutos al día."},
+
+  {name:"Pollo deshebrado con calabacitas", meta:"Cena · ~379 kcal y 43 g proteína",
+   ing:[
+     {q:"110 g", food:"Pollo deshebrado", tag:"cocido"},
+     {q:"200 g", food:"Calabacitas", tag:"en cubos"},
+     {q:"70 g", food:"Frijol de la olla"},
+     {q:"40 g", food:"Aguacate"},
+     {q:"al gusto", food:"Jitomate, cebolla, ajo, sal"},
+   ],
+   steps:[
+     "Sofríe cebolla, ajo y jitomate (sin aceite o con espray).",
+     "Agrega las calabacitas y un poco de agua; tapa 5-7 min hasta que estén suaves.",
+     "Incorpora el pollo deshebrado y sazona.",
+     "Sirve con el frijol y el aguacate.",
+   ],
+   tip:""},
+
+  {name:"Huevos con panela y nopal", meta:"Cena · ~302 kcal y 31 g proteína",
+   ing:[
+     {q:"1 pza", food:"Huevo entero"},
+     {q:"120 g", food:"Clara de huevo", tag:"≈4 claras"},
+     {q:"40 g", food:"Queso panela", tag:"en cubos"},
+     {q:"150 g", food:"Nopal", tag:"asado"},
+     {q:"1 pza", food:"Tortilla de maíz"},
+   ],
+   steps:[
+     "Bate el huevo con las claras.",
+     "En sartén antiadherente sin aceite, agrega la panela en cubos y vierte el huevo; revuelve hasta cuajar.",
+     "Acompaña con los nopales asados y 1 tortilla.",
+   ],
+   tip:""},
+];
+
+/* ---------- lista de compras ---------- */
+// Resto de la semana (comidas, cenas, snack, antojo) — NO incluye desayuno (ese es dinámico)
+const SHOP = [
+  {cat:"Proteínas (comidas y cenas)", items:[
+    {n:"Pechuga de pollo", q:"~0.65 kg (cruda)"},
+    {n:"Tilapia / pescado blanco", q:"~0.45 kg (crudo)"},
+    {n:"Atún en agua", q:"3 latas"},
+    {n:"Huevo entero", q:"3 piezas (cenas)"},
+    {n:"Clara líquida pasteurizada", q:"~400 ml (cenas)"},
+    {n:"Queso panela light", q:"~0.7 kg (snack + cenas)"},
+  ]},
+  {cat:"Cereales y leguminosas", items:[
+    {n:"Arroz", q:"200 g (crudo)"},
+    {n:"Frijol seco", q:"0.4 kg (o ~0.9 kg ya cocido)"},
+    {n:"Tortillas de maíz", q:"1 paquete (~12-15)"},
+    {n:"Tostadas horneadas", q:"1 paquete (~10)"},
+  ]},
+  {cat:"Frutas y verduras", items:[
+    {n:"Verduras mixtas (zanahoria/calabaza/ejote)", q:"~1.1 kg"},
+    {n:"Calabacitas", q:"~250 g"},
+    {n:"Nopal", q:"~0.8 kg (≈8 pencas)"},
+    {n:"Aguacate", q:"3 piezas"},
+    {n:"Manzana", q:"7 piezas (snack)"},
+    {n:"Fresas", q:"200 g (antojo)"},
+  ]},
+  {cat:"Despensa y antojo", items:[
+    {n:"Aceite de oliva", q:"~20 ml/semana"},
+    {n:"Aceite de sésamo", q:"frasco pequeño"},
+    {n:"Salsa de soya baja en sodio + salsa de ostra", q:"1 c/u"},
+    {n:"Chocolate 70%", q:"1 tablilla (~110 g)"},
+    {n:"Mazapán", q:"1 pieza"},
+    {n:"Limón, cebolla, cilantro, sal, especias", q:"al gusto"},
+  ]},
+];
+
+// Compra de DESAYUNO (×7) por opción — se ajusta al desayuno elegido en el Plan
+const BFSHOP = {
+  base:[
+    {n:"Avena en hojuelas", q:"280 g"},{n:"Leche semidescremada", q:"~1.05 L"},
+    {n:"Yogur natural bajo en grasa", q:"1 L (~0.85 kg)"},{n:"Plátano", q:"6 piezas"},
+    {n:"Huevo entero", q:"7 piezas"},{n:"Clara líquida pasteurizada", q:"~450 ml"},
+  ],
+  huevos:[
+    {n:"Huevo entero", q:"7 piezas"},{n:"Clara líquida pasteurizada", q:"~1.4 L"},
+    {n:"Tortilla de maíz", q:"~14 piezas"},{n:"Nopal", q:"~0.85 kg"},
+    {n:"Aguacate", q:"2-3 piezas"},{n:"Papaya o manzana", q:"7 piezas"},
+  ],
+  pancakes:[
+    {n:"Plátano", q:"6 piezas"},{n:"Huevo entero", q:"7 piezas"},{n:"Clara líquida pasteurizada", q:"~700 ml"},
+    {n:"Harina de avena", q:"210 g"},{n:"Yogur griego alto en proteína", q:"~1.05 kg"},
+    {n:"Frutos rojos", q:"~560 g"},{n:"Polvo para hornear, canela, vainilla", q:"despensa"},
+  ],
+  avena:[
+    {n:"Avena en hojuelas", q:"280 g"},{n:"Leche semidescremada", q:"~1.75 L"},{n:"Plátano", q:"6 piezas"},
+    {n:"Cacao en polvo sin azúcar", q:"~50 g"},{n:"Semillas de chía", q:"~40 g"},
+    {n:"Yogur griego alto en proteína", q:"~1.05 kg"},
+  ],
+  sandwich:[
+    {n:"Leche semidescremada", q:"~1.75 L"},{n:"Té rooibos o manzanilla", q:"1 caja"},
+    {n:"Pan Bimbo Cero Cero", q:"14 rebanadas (1 paquete)"},{n:"Jamón de pavo San Rafael", q:"~0.63 kg"},
+    {n:"Clara líquida pasteurizada", q:"~250 ml (o 7 huevos)"},{n:"Manzana", q:"7 piezas"},
+  ],
+  licuado:[
+    {n:"Leche semidescremada", q:"~1.05 L"},{n:"Yogur griego 0% alto en proteína", q:"~1.05 kg"},
+    {n:"Frutos rojos", q:"700 g"},{n:"Crema de cacahuate", q:"~70 g"},
+    {n:"Avena en hojuelas", q:"~105 g"},{n:"Proteína en polvo", q:"~70 g (opcional)"},
+  ],
+  molletes:[
+    {n:"Pan integral", q:"1 paquete (~350 g)"},{n:"Frijoles cocidos", q:"~630 g (o frijol seco)"},
+    {n:"Queso panela light", q:"~280 g"},{n:"Jamón de pavo San Rafael", q:"~280 g"},
+    {n:"Clara líquida pasteurizada", q:"~450 ml"},{n:"Aguacate", q:"2 piezas"},
+  ],
+  tortilla:[
+    {n:"Tortilla de maíz", q:"~25 piezas"},{n:"Queso panela light", q:"~350 g"},
+    {n:"Jamón de pavo San Rafael", q:"~0.7 kg"},{n:"Aguacate", q:"2 piezas"},
+  ],
+};
+
+/* ---------- render: plan ---------- */
+function mealHTML(meal){
+  const items = meal.items.map(it=>
+    `<li class="item"><span class="qty">${it.q}</span><span class="food">${it.food}${it.tag?` <span class="tag">· ${it.tag}</span>`:""}</span></li>`
+  ).join("");
+  return `<div class="meal">
+    <div class="meal-head">
+      <span class="meal-name">${meal.name}</span>
+      <span class="meal-rule"></span>
+      <span class="meal-macros">${meal.m.kcal} kcal · ${meal.m.p}P · ${meal.m.f}G · ${meal.m.c}C</span>
+    </div>
+    <ul class="items">${items}</ul>
+    <div class="prep"><b>Elaboración:</b> ${meal.prep}</div>
+  </div>`;
+}
+let selectedBreakfast = localStorage.getItem("dieta_breakfast") || "base";
+let currentDay = 0;
+function getBreakfast(){ return BREAKFASTS.find(b=>b.id===selectedBreakfast) || BREAKFASTS[0]; }
+function sumMacros(list){ return list.reduce((a,m)=>({kcal:a.kcal+m.kcal,p:a.p+m.p,f:a.f+m.f,c:a.c+m.c}),{kcal:0,p:0,f:0,c:0}); }
+
+function breakfastMealHTML(bf){
+  const items = bf.items.map(it=>
+    `<li class="item"><span class="qty">${it.q}</span><span class="food">${it.food}${it.tag?` <span class="tag">· ${it.tag}</span>`:""}</span></li>`).join("");
+  const opts = BREAKFASTS.map(b=>`<option value="${b.id}"${b.id===selectedBreakfast?" selected":""}>Desayuno · ${b.optlabel}</option>`).join("");
+  return `<div class="meal">
+    <div class="meal-head">
+      <select class="bf-select" id="bfSelect" aria-label="Elegir desayuno">${opts}</select>
+      <span class="meal-rule"></span>
+      <span class="meal-macros">${bf.m.kcal} kcal · ${bf.m.p}P · ${bf.m.f}G · ${bf.m.c}C</span>
+    </div>
+    <ul class="items">${items}</ul>
+    <div class="prep"><b>Elaboración:</b> ${bf.prep}</div>
+    ${bf.note?`<div class="prep"><b>Nota:</b> ${bf.note}</div>`:""}
+  </div>`;
+}
+
+function renderDay(i){
+  currentDay = i;
+  const d = DAYS[i];
+  const bf = getBreakfast();
+  const t = sumMacros([bf.m, d.comida.m, M.snack.m, d.cena.m, d.antojo.m]);
+  document.getElementById("day").innerHTML = `
+    <div class="day-head">
+      <span class="day-name">${d.dia}</span>
+      <span class="day-kcal"><b>${Math.round(t.kcal)}</b> kcal</span>
+    </div>
+    <div class="macroline">
+      <span class="mp">${t.p.toFixed(0)} g proteína</span> ·
+      <span class="mf">${t.f.toFixed(0)} g grasa</span> ·
+      <span class="mc">${t.c.toFixed(0)} g carbohidratos</span>
+    </div>
+    ${breakfastMealHTML(bf)}${mealHTML(d.comida)}${mealHTML(M.snack)}${mealHTML(d.cena)}${mealHTML(d.antojo)}`;
+  document.querySelectorAll("#chips .chip").forEach((c,idx)=>c.classList.toggle("active",idx===i));
+  const sel = document.getElementById("bfSelect");
+  if(sel) sel.addEventListener("change",()=>{
+    selectedBreakfast = sel.value;
+    localStorage.setItem("dieta_breakfast", selectedBreakfast);
+    renderDay(currentDay);
+    renderShop();
+  });
+}
+function renderChips(){
+  document.getElementById("chips").innerHTML = DAYS.map((d,i)=>`<button class="chip" data-i="${i}">${d.abbr}</button>`).join("");
+  document.querySelectorAll("#chips .chip").forEach(c=>c.addEventListener("click",()=>renderDay(+c.dataset.i)));
+}
+
+/* ---------- render: recetas ---------- */
+function renderRecipes(){
+  document.getElementById("recipes").innerHTML = RECIPES.map(r=>{
+    const ing = r.ing.map(it=>`<li class="item"><span class="qty">${it.q}</span><span class="food">${it.food}${it.tag?` <span class="tag">· ${it.tag}</span>`:""}</span></li>`).join("");
+    const steps = r.steps.map(s=>`<li>${s}</li>`).join("");
+    return `<div class="recipe">
+      <div class="r-name">${r.name}</div>
+      <div class="r-meta">${r.meta}</div>
+      <div class="r-sub">Ingredientes</div>
+      <ul class="r-ing">${ing}</ul>
+      <div class="r-sub">Preparación</div>
+      <ol class="r-steps">${steps}</ol>
+      ${r.tip?`<div class="r-tip"><b>Tip:</b> ${r.tip}</div>`:""}
+    </div>`;
+  }).join("");
+}
+
+/* ---------- render: compras ---------- */
+function renderShop(){
+  const saved = JSON.parse(localStorage.getItem("dieta_shop")||"{}");
+  const bf = getBreakfast();
+  const bfCat = { cat:`Desayuno ×7 · ${bf.optlabel.replace(/ ★$/,"")}`, items: BFSHOP[bf.id] || [] };
+  const cats = [bfCat, ...SHOP];
+  document.getElementById("shop").innerHTML = cats.map((cat,ci)=>`
+    <div class="cat">
+      <div class="cat-name">${cat.cat}</div>
+      ${cat.items.map(it=>{
+        const id = "c_"+ci+"_"+it.n.replace(/[^a-zA-Z0-9]/g,"");
+        return `<label class="check">
+          <input type="checkbox" data-id="${id}" ${saved[id]?"checked":""}>
+          <span class="lbl">${it.n} <span class="q">— ${it.q}</span></span>
+        </label>`;
+      }).join("")}
+    </div>`).join("");
+  document.querySelectorAll('#shop input').forEach(inp=>
+    inp.addEventListener("change",()=>{
+      const s = JSON.parse(localStorage.getItem("dieta_shop")||"{}");
+      s[inp.dataset.id] = inp.checked;
+      localStorage.setItem("dieta_shop",JSON.stringify(s));
+    }));
+}
+
+/* ---------- agua ---------- */
+const WATER_GOAL = 10; // vasos de 250 ml = 2.5 L
+function todayStr(){ const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+function getWater(){ const w=JSON.parse(localStorage.getItem("dieta_water")||"{}"); return w.date===todayStr()?(w.count||0):0; }
+function setWater(n){ if(n<0)n=0; if(n>WATER_GOAL)n=WATER_GOAL; localStorage.setItem("dieta_water",JSON.stringify({date:todayStr(),count:n})); renderWater(n); }
+function renderWater(n){
+  if(n===undefined) n=getWater();
+  let html="";
+  for(let i=1;i<=WATER_GOAL;i++){ html+=`<button class="glass${i<=n?" full":""}" data-i="${i}" aria-label="Vaso ${i}"></button>`; }
+  const g=document.getElementById("glasses");
+  g.innerHTML=html;
+  g.querySelectorAll(".glass").forEach(b=>b.addEventListener("click",()=>{
+    const i=+b.dataset.i, cur=getWater(); setWater(i===cur ? i-1 : i);
+  }));
+  document.getElementById("waterCount").innerHTML = `<b>${n}</b> / ${WATER_GOAL} vasos · <b>${(n*0.25).toFixed(2)} L</b>`;
+  const msg=document.getElementById("waterMsg");
+  msg.textContent = n>=WATER_GOAL ? "✓ Meta completa, ¡excelente!" : (n>=8 ? "✓ Mínimo de 2 L alcanzado." : "");
+}
+
+/* ---------- progreso ---------- */
+const PKEY="dieta_progress";
+let currentMetric="peso";
+function getProg(){ try{return JSON.parse(localStorage.getItem(PKEY))||{weights:[],waists:[]};}catch(e){return {weights:[],waists:[]};} }
+function saveProg(p){ localStorage.setItem(PKEY,JSON.stringify(p)); }
+function pad(n){ return String(n).padStart(2,"0"); }
+function iso(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+function todayISO(){ return iso(new Date()); }
+function daysAgoISO(n){ const d=new Date(); d.setDate(d.getDate()-n); return iso(d); }
+function shortDate(s){ const p=s.split("-"); return p[2]+"/"+p[1]; }
+function mean(a){ return a.length ? a.reduce((s,e)=>s+e.value,0)/a.length : null; }
+
+function addEntry(kind,val){
+  const p=getProg(), arr=p[kind], d=todayISO(), i=arr.findIndex(e=>e.date===d);
+  if(i>=0) arr[i].value=val; else arr.push({date:d,value:val});
+  arr.sort((a,b)=>a.date<b.date?-1:1);
+  saveProg(p); renderProgress();
+}
+
+function chartSVG(data,varName){
+  if(!data.length) return '<div style="font-size:12px;color:var(--muted);padding:6px 2px">Aún no hay datos. Registra tu primer valor.</div>';
+  const W=320,H=120,padL=30,padR=12,padT=12,padB=18;
+  const vals=data.map(e=>e.value); let min=Math.min(...vals),max=Math.max(...vals);
+  if(min===max){min-=1;max+=1;} const range=max-min,n=data.length;
+  const X=i=> n===1 ? (padL+(W-padL-padR)/2) : padL+(W-padL-padR)*i/(n-1);
+  const Y=v=> padT+(H-padT-padB)*(1-(v-min)/range);
+  const pts=data.map((e,i)=>X(i).toFixed(1)+","+Y(e.value).toFixed(1)).join(" ");
+  const dots=data.map((e,i)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(e.value).toFixed(1)}" r="2.4" style="fill:${varName}"/>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img">
+    <text class="axis" x="3" y="${(Y(max)+3).toFixed(1)}">${max.toFixed(1)}</text>
+    <text class="axis" x="3" y="${(Y(min)+3).toFixed(1)}">${min.toFixed(1)}</text>
+    <text class="axis" x="${padL}" y="${H-4}">${shortDate(data[0].date)}</text>
+    <text class="axis" x="${W-padR}" y="${H-4}" text-anchor="end">${shortDate(data[n-1].date)}</text>
+    <polyline points="${pts}" style="fill:none;stroke:${varName}" stroke-width="1.7"/>
+    ${dots}
+  </svg>`;
+}
+
+function renderChart(){
+  const p=getProg();
+  const data = currentMetric==="peso" ? p.weights : p.waists;
+  const varName = currentMetric==="peso" ? "var(--c)" : "var(--f)";
+  document.getElementById("chart").innerHTML = chartSVG(data,varName);
+  document.querySelectorAll(".metric-chips .chip").forEach(c=>c.classList.toggle("active",c.dataset.metric===currentMetric));
+}
+
+function renderProgStats(){
+  const p=getProg(), Wt=p.weights, Wa=p.waists;
+  const last7=Wt.filter(e=>e.date>=daysAgoISO(6));
+  const prev7=Wt.filter(e=>e.date>=daysAgoISO(13)&&e.date<=daysAgoISO(7));
+  const recentAvg=mean(last7), prevAvg=mean(prev7);
+  let html="";
+  if(Wt.length){
+    const lw=Wt[Wt.length-1];
+    html+=`<div class="stat"><div class="v">${lw.value.toFixed(1)} <span class="unit">kg</span></div><div class="k">Último peso · ${shortDate(lw.date)}</div></div>`;
+    if(recentAvg!=null){
+      let d="";
+      if(prevAvg!=null){ const diff=recentAvg-prevAvg, down=diff<0;
+        d=`<div class="d" style="color:${down?'var(--p)':'var(--f)'}">${down?'▼':'▲'} ${Math.abs(diff).toFixed(2)} kg vs semana previa</div>`; }
+      html+=`<div class="stat"><div class="v">${recentAvg.toFixed(1)} <span class="unit">kg</span></div><div class="k">Promedio 7 días</div>${d}</div>`;
+    }
+  }
+  if(Wa.length){
+    const lc=Wa[Wa.length-1]; let d="";
+    if(Wa.length>1){ const pc=Wa[Wa.length-2], diff=lc.value-pc.value, down=diff<0;
+      d=`<div class="d" style="color:${down?'var(--p)':'var(--f)'}">${down?'▼':'▲'} ${Math.abs(diff).toFixed(1)} cm</div>`; }
+    html+=`<div class="stat"><div class="v">${lc.value.toFixed(1)} <span class="unit">cm</span></div><div class="k">Cintura · ${shortDate(lc.date)}</div>${d}</div>`;
+  }
+  if(!html) html=`<div style="font-size:12px;color:var(--muted)">Registra tu peso y tu cintura para ver tu progreso aquí.</div>`;
+  document.getElementById("progStats").innerHTML=html;
+}
+
+function renderSuggest(){
+  const p=getProg(), Wt=p.weights, Wa=p.waists;
+  const recentAvg=mean(Wt.filter(e=>e.date>=daysAgoISO(6)));
+  const prevAvg=mean(Wt.filter(e=>e.date>=daysAgoISO(13)&&e.date<=daysAgoISO(7)));
+  let msg;
+  if(recentAvg==null||prevAvg==null){
+    msg="Necesito al menos ~2 semanas de registros (esta semana y la anterior) para sugerir un ajuste. Sigue anotando tu peso cada mañana. 💪";
+  } else {
+    const loss=prevAvg-recentAvg;
+    const t=(loss>=0?"bajaste ":"subiste ")+Math.abs(loss).toFixed(2)+" kg en la semana";
+    let s;
+    if(loss>0.55) s="Vas <b>rápido</b> ("+t+"). Para no perder músculo, <b>sube 100-150 kcal</b>, mejor en carbohidratos (más arroz o fruta).";
+    else if(loss>=0.25) s="<b>Ritmo ideal</b> ("+t+"; meta ~0.3-0.45 kg/sem). <b>No cambies nada.</b> 👌";
+    else if(loss>=0.05) s="Vas <b>un poco lento</b> ("+t+") pero bien. Mantén; si la próxima semana sigue plano, recorta ~150 kcal.";
+    else if(loss>=-0.2) s="Estás <b>estancado</b> ("+t+"). Si el hambre es tolerable, <b>recorta ~150 kcal</b> (quita el antojo líquido o reduce una porción de arroz) y revisa que no sean calorías líquidas.";
+    else s="<b>Subiste</b> ("+t+"). Antes de recortar, revisa porciones, calorías líquidas y pasos; si fue solo una semana, espera la tendencia.";
+    let w="";
+    if(Wa.length>1 && (Wa[Wa.length-1].value-Wa[0].value)<0) w=" Además, tu <b>cintura va bajando</b> 👍 (lo que más importa).";
+    msg=s+w+"<br><span style='color:var(--muted)'>Considera también tu hambre y energía: si tienes mucha hambre o sin energía, no recortes — sube calorías.</span>";
+  }
+  document.getElementById("suggest").innerHTML=`<span class="stag">Sugerencia de ajuste</span>${msg}`;
+}
+
+function renderProgress(){
+  renderProgStats(); renderChart(); renderSuggest();
+  const p=getProg(), d=todayISO();
+  const wt=p.weights.find(e=>e.date===d), ct=p.waists.find(e=>e.date===d);
+  const wIn=document.getElementById("wIn"), ciIn=document.getElementById("ciIn");
+  if(wt && !wIn.value) wIn.value=wt.value;
+  if(ct && !ciIn.value) ciIn.value=ct.value;
+}
+
+/* ---------- tema ---------- */
+function setTheme(dark){
+  document.documentElement.classList.toggle("dark",dark);
+  document.getElementById("theme").textContent = dark ? "Claro" : "Oscuro";
+  localStorage.setItem("dieta_theme", dark ? "dark" : "light");
+}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll(".tab").forEach(t=>
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById(t.dataset.tab).classList.add("active");
+  }));
+
+document.getElementById("reset").addEventListener("click",()=>{ localStorage.removeItem("dieta_shop"); renderShop(); });
+document.getElementById("waterReset").addEventListener("click",()=>setWater(0));
+document.getElementById("theme").addEventListener("click",()=>setTheme(!document.documentElement.classList.contains("dark")));
+
+document.getElementById("wSave").addEventListener("click",()=>{ const v=parseFloat(document.getElementById("wIn").value); if(v>0&&v<400) addEntry("weights",v); });
+document.getElementById("ciSave").addEventListener("click",()=>{ const v=parseFloat(document.getElementById("ciIn").value); if(v>0&&v<300) addEntry("waists",v); });
+document.getElementById("wIn").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("wSave").click(); });
+document.getElementById("ciIn").addEventListener("keydown",e=>{ if(e.key==="Enter") document.getElementById("ciSave").click(); });
+document.querySelectorAll(".metric-chips .chip").forEach(c=>c.addEventListener("click",()=>{ currentMetric=c.dataset.metric; renderChart(); }));
+document.getElementById("progReset").addEventListener("click",()=>{ if(confirm("¿Borrar todos los registros de peso y cintura?")){ localStorage.removeItem(PKEY); document.getElementById("wIn").value=""; document.getElementById("ciIn").value=""; renderProgress(); } });
+
+/* ---------- init ---------- */
+setTheme(localStorage.getItem("dieta_theme")==="dark");
+renderChips();
+renderDay((new Date().getDay()+6)%7);   /* abre en el día de hoy (Lun=0 … Dom=6) */
+renderRecipes();
+renderShop();
+renderWater();
+renderProgress();
+</script>
+<script>
+/* Registra el service worker para que la app funcione sin internet */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
