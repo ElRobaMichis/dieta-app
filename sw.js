@@ -1,5 +1,8 @@
-/* Service worker — guarda la app para usarla sin internet (offline-first) */
-const CACHE = 'dieta-v6';
+/* Service worker — offline + auto-actualización
+   - Página (HTML): NETWORK-FIRST → si hay internet trae la versión nueva; si no, usa la guardada.
+   - Recursos (fuente, íconos): CACHE-FIRST → cargan al instante.
+   Nunca toca tu progreso (localStorage): borrar caché NO borra tus datos. */
+const CACHE = 'dieta-v7';
 const CORE = [
   './',
   './index.html',
@@ -26,20 +29,34 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
+
+  const isDoc = req.mode === 'navigate' || req.destination === 'document';
+
+  if (isDoc) {
+    // NETWORK-FIRST para la página: siempre intenta lo más nuevo si hay conexión
+    e.respondWith(
+      fetch(req).then((res) => {
+        if (res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, clone)).catch(() => {});
+        }
+        return res;
+      }).catch(() => caches.match(req).then((c) => c || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // CACHE-FIRST para recursos estáticos (fuente de Google, íconos)
   e.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        // Guarda en caché lo que se descargue (incluida la fuente de Google) para próximas visitas offline
         if (res && (res.ok || res.type === 'opaque')) {
           const clone = res.clone();
           caches.open(CACHE).then((c) => c.put(req, clone)).catch(() => {});
         }
         return res;
-      }).catch(() => {
-        // Sin internet: si es una navegación, devuelve la app guardada
-        if (req.mode === 'navigate') return caches.match('./index.html');
-      });
+      }).catch(() => cached);
     })
   );
 });

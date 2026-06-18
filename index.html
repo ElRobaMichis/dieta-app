@@ -923,10 +923,20 @@ renderWater();
 renderProgress();
 </script>
 <script>
-/* Registra el service worker para que la app funcione sin internet */
+/* Service worker: funciona sin internet y se ACTUALIZA SOLO al abrir con conexión.
+   No hace falta borrar/reinstalar la app (eso es lo que borraba el progreso). */
 if ('serviceWorker' in navigator) {
+  var refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', function () {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('./sw.js').catch(function () {});
+    navigator.serviceWorker.register('./sw.js').then(function (reg) {
+      reg.update();
+      setInterval(function () { reg.update(); }, 60 * 60 * 1000);
+    }).catch(function () {});
   });
 }
 </script>
