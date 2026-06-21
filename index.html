@@ -281,7 +281,7 @@
     Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
     Cara, papada y pecho: NO existe la reducción localizada — bajas grasa de TODO el cuerpo con este mismo plan. Camina a paso MODERADO (respiración acelerada, aún puedes hablar) y baja la SAL: desinflan la cara y reducen más la grasa visceral.<br>
     Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.<br>
-    <b style="color:var(--p)">app v11 · 18-jun-2026</b>
+    <b style="color:var(--p)">app v12 · 18-jun-2026</b>
   </footer>
 </div>
 
@@ -494,6 +494,39 @@ const BREAKFASTS = [
     ],
     prep:"Deshebra el pollo con poca sal y revuélvelo con las claras. Monta sobre las 2 tostadas con el aguacate. Acompaña con la papaya y la gelatina sin azúcar de postre.",
     note:"Tu idea, balanceada: las tostadas horneadas casi no tienen grasa (ideal para tu vesícula) y las claras suben la proteína a ~47 g sin grasa. La gelatina sin azúcar mata el antojo de dulce por ~6 kcal — tenla lista en el refri. Cuida la sal del pollo, no las tostadas. Alternativa con más fibra: cambia las claras por 90 g de frijol y baja el aguacate a 20 g (tostada de frijol). Frijol de lata SIN grasa para untar (sin manteca): el MEJOR es Isadora Bayos 'Sin Grasa' (menos sodio ~269 mg y más proteína); plan B La Sierra Bayos '0% Grasa' (Soriana/Chedraui). Debe decir 'SIN GRASA' — el refrito normal de Isadora lleva aceite. La Costeña 'Sin Grasa' casi solo en línea. NO uses los refritos REGULARES." },
+];
+
+/* ---------- comidas intercambiables (global, como el desayuno; la cena sigue rotando) ---------- */
+const COMIDAS = [
+  { id:"rotacion", optlabel:"Según el día (rotación)" },
+  { id:"base", optlabel:"Pechuga de pollo con arroz", meal:M.comidaBase },
+  { id:"tacos", optlabel:"Tacos de pollo", meal:M.comidaTacos },
+  { id:"tostadasAtun", optlabel:"Tostadas de atún", meal:M.comidaTostadas },
+  { id:"tilapiaArroz", optlabel:"Tilapia con arroz", meal:M.comidaTilapiaArroz },
+  { id:"tinga", optlabel:"Tostadas de pollo a la jitomate (tinga)", meal:{
+    name:"Comida · Tostadas de pollo (tinga)", m:{kcal:410,p:44,f:6,c:46},
+    items:[
+      {q:"160 g",food:"Pollo deshebrado",tag:"cocido"},{q:"150 g",food:"Jitomate picado"},{q:"60 g",food:"Cebolla"},
+      {q:"1 cdta",food:"Salsa Worcestershire"},{q:"3 pzas",food:"Tostadas Sanissimo horneadas"},
+      {q:"40 g",food:"Yogur griego FAGE 0%",tag:"para coronar"},{q:"1/2",food:"Limón"},
+    ],
+    prep:"Acitrona la cebolla, agrega el jitomate hasta salsa espesa e incorpora el pollo + Worcestershire. Monta sobre las tostadas, corona con yogur griego y limón. (Receta completa en la pestaña Recetas.)" } },
+  { id:"salteado", optlabel:"Salteado de pollo y brócoli", meal:{
+    name:"Comida · Salteado de pollo y brócoli", m:{kcal:375,p:47,f:8,c:25},
+    items:[
+      {q:"130 g",food:"Pollo deshebrado",tag:"cocido"},{q:"200 g",food:"Brócoli"},{q:"80 g",food:"Pimiento morrón"},{q:"50 g",food:"Cebolla"},
+      {q:"2 cdtas",food:"Salsa de ostras"},{q:"1 cdta",food:"Soya baja en sodio"},{q:"1 cdta",food:"Vinagre de arroz"},
+      {q:"1/2 cdta",food:"Aceite de ajonjolí",tag:"al final"},
+    ],
+    prep:"Saltea cebolla, ajo y pimiento; agrega el pollo y el brócoli; glasea con ostras + soya + vinagre y, fuera del fuego, el aceite de ajonjolí. (Receta completa en Recetas.)" } },
+  { id:"teriyaki", optlabel:"Pollo teriyaki con verduras", meal:{
+    name:"Comida · Pollo teriyaki con verduras", m:{kcal:395,p:52,f:9,c:25},
+    items:[
+      {q:"150 g",food:"Pollo deshebrado",tag:"cocido"},{q:"150 g",food:"Brócoli"},{q:"80 g",food:"Pimiento morrón"},{q:"40 g",food:"Cebolla"},
+      {q:"1 cda",food:"Salsa teriyaki"},{q:"1 cdta",food:"Mirin"},{q:"1 cdta",food:"Vinagre de arroz"},{q:"1 cdta",food:"Jengibre"},
+      {q:"1/2 cdta",food:"Aceite de ajonjolí",tag:"al final"},
+    ],
+    prep:"Saltea cebolla, jengibre y pimiento; agrega el pollo y el brócoli; glasea con teriyaki + mirin + vinagre y, fuera del fuego, el aceite de ajonjolí. (Receta completa en Recetas.)" } },
 ];
 
 /* ---------- recetas ---------- */
@@ -808,11 +841,33 @@ function breakfastMealHTML(bf){
   </div>`;
 }
 
+let selectedComida = localStorage.getItem("dieta_comida") || "rotacion";
+function getComida(d){
+  if(selectedComida==="rotacion") return d.comida;
+  const c = COMIDAS.find(x=>x.id===selectedComida);
+  return (c && c.meal) ? c.meal : d.comida;
+}
+function comidaMealHTML(meal){
+  const items = meal.items.map(it=>
+    `<li class="item"><span class="qty">${it.q}</span><span class="food">${it.food}${it.tag?` <span class="tag">· ${it.tag}</span>`:""}</span></li>`).join("");
+  const opts = COMIDAS.map(c=>`<option value="${c.id}"${c.id===selectedComida?" selected":""}>${c.id==="rotacion"?c.optlabel:"Comida · "+c.optlabel}</option>`).join("");
+  return `<div class="meal">
+    <div class="meal-head">
+      <select class="bf-select" id="comidaSelect" aria-label="Elegir comida">${opts}</select>
+      <span class="meal-rule"></span>
+      <span class="meal-macros">${meal.m.kcal} kcal · ${meal.m.p}P · ${meal.m.f}G · ${meal.m.c}C</span>
+    </div>
+    <ul class="items">${items}</ul>
+    <div class="prep"><b>Elaboración:</b> ${meal.prep}</div>
+    ${meal.note?`<div class="prep"><b>Nota:</b> ${meal.note}</div>`:""}
+  </div>`;
+}
 function renderDay(i){
   currentDay = i;
   const d = DAYS[i];
   const bf = getBreakfast();
-  const t = sumMacros([bf.m, d.comida.m, M.snack.m, d.cena.m, d.antojo.m]);
+  const cm = getComida(d);
+  const t = sumMacros([bf.m, cm.m, M.snack.m, d.cena.m, d.antojo.m]);
   document.getElementById("day").innerHTML = `
     <div class="day-head">
       <span class="day-name">${d.dia}</span>
@@ -823,7 +878,7 @@ function renderDay(i){
       <span class="mf">${t.f.toFixed(0)} g grasa</span> ·
       <span class="mc">${t.c.toFixed(0)} g carbohidratos</span>
     </div>
-    ${breakfastMealHTML(bf)}${mealHTML(d.comida)}${mealHTML(M.snack)}${mealHTML(d.cena)}${mealHTML(d.antojo)}`;
+    ${breakfastMealHTML(bf)}${comidaMealHTML(cm)}${mealHTML(M.snack)}${mealHTML(d.cena)}${mealHTML(d.antojo)}`;
   document.querySelectorAll("#chips .chip").forEach((c,idx)=>c.classList.toggle("active",idx===i));
   const sel = document.getElementById("bfSelect");
   if(sel) sel.addEventListener("change",()=>{
@@ -831,6 +886,12 @@ function renderDay(i){
     localStorage.setItem("dieta_breakfast", selectedBreakfast);
     renderDay(currentDay);
     renderShop();
+  });
+  const csel = document.getElementById("comidaSelect");
+  if(csel) csel.addEventListener("change",()=>{
+    selectedComida = csel.value;
+    localStorage.setItem("dieta_comida", selectedComida);
+    renderDay(currentDay);
   });
 }
 function renderChips(){
