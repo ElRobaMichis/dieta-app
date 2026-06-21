@@ -264,7 +264,7 @@
   </section>
 
   <section id="compras" class="panel">
-    <div class="shop-intro">Compra semanal (cubre los 7 días). Las secciones de <b>Desayuno</b> y <b>Comida</b> se ajustan solas a lo que elijas en el Plan. Los checks se guardan en este dispositivo.</div>
+    <div class="shop-intro">Compra semanal (cubre los 7 días). Las secciones de <b>Desayuno</b>, <b>Comida</b> y <b>Cena</b> se ajustan solas a lo que elijas en el Plan. Los checks se guardan en este dispositivo.</div>
     <div class="shop-actions"><button class="lnk" id="reset">Limpiar todo</button></div>
     <div id="shop"></div>
   </section>
@@ -281,7 +281,7 @@
     Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
     Cara, papada y pecho: NO existe la reducción localizada — bajas grasa de TODO el cuerpo con este mismo plan. Camina a paso MODERADO (respiración acelerada, aún puedes hablar) y baja la SAL: desinflan la cara y reducen más la grasa visceral.<br>
     Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.<br>
-    <b style="color:var(--p)">app v13 · 18-jun-2026</b>
+    <b style="color:var(--p)">app v14 · 18-jun-2026</b>
   </footer>
 </div>
 
@@ -529,6 +529,23 @@ const COMIDAS = [
     prep:"Saltea cebolla, jengibre y pimiento; agrega el pollo y el brócoli; glasea con teriyaki + mirin + vinagre y, fuera del fuego, el aceite de ajonjolí. (Receta completa en Recetas.)" } },
 ];
 
+/* ---------- cenas intercambiables (global, como el desayuno y la comida) ---------- */
+const CENAS = [
+  { id:"rotacion", optlabel:"Según el día (rotación)" },
+  { id:"cenaBase", optlabel:"Tilapia con nopal", meal:M.cenaBase },
+  { id:"cenaPolloCalab", optlabel:"Pollo con calabacitas", meal:M.cenaPolloCalab },
+  { id:"cenaAtun", optlabel:"Atún con verduras", meal:M.cenaAtun },
+  { id:"cenaHuevos", optlabel:"Huevos con panela y nopal", meal:M.cenaHuevos },
+  { id:"sopaMiso", optlabel:"Sopa miso kakitama", meal:{
+    name:"Cena · Sopa miso kakitama", m:{kcal:250,p:38,f:9,c:6},
+    items:[
+      {q:"500 ml",food:"Agua"},{q:"~5×5 cm",food:"Dashi kombu (alga)"},{q:"4 g",food:"Hojuelas de bonito"},
+      {q:"12 g",food:"Miso blanco",tag:"≈2 cdtas"},{q:"2 g",food:"Wakame seco"},{q:"90 g",food:"Pollo deshebrado"},
+      {q:"1 pza",food:"Huevo entero"},{q:"1",food:"Clara de huevo"},{q:"20 g",food:"Cebolla"},
+    ],
+    prep:"Haz un dashi con kombu + bonito; calienta con cebolla y pollo, agrega el wakame, vierte el huevo + clara en hilo a hervor suave y disuelve el miso al final (NUNCA lo hiervas). (Receta completa en Recetas.)" } },
+];
+
 /* ---------- recetas ---------- */
 const RECIPES = [
   {name:"Arroz frito proteico (arrocera)", meta:"Rinde 2-3 porciones · ~400-480 kcal y 35-40 g proteína por porción",
@@ -721,32 +738,18 @@ const RECIPES = [
 ];
 
 /* ---------- lista de compras ---------- */
-// Resto de la semana (CENAS, snack, antojo, despensa) — el desayuno y la comida son dinámicos
+// Resto de la semana (snack + antojo + despensa) — desayuno, comida y cena son dinámicos
 const SHOP = [
-  {cat:"Proteínas (cenas)", items:[
-    {n:"Tilapia / pescado blanco", q:"~0.35 kg (cruda)"},
-    {n:"Pechuga de pollo", q:"~0.2 kg (cruda, cena)"},
-    {n:"Atún en agua", q:"1 lata"},
-    {n:"Huevo entero", q:"3 piezas"},
-    {n:"Clara líquida pasteurizada", q:"~400 ml"},
-    {n:"Queso panela light", q:"~0.7 kg (snack diario + cenas)"},
-  ]},
-  {cat:"Cereales y leguminosas (cenas)", items:[
-    {n:"Frijol (seco o de lata)", q:"~0.2 kg seco · o frijoles ENTEROS Isadora (enjuágalos)"},
-    {n:"Tortillas de maíz", q:"~7 piezas"},
-  ]},
-  {cat:"Frutas y verduras", items:[
-    {n:"Nopal", q:"~0.8 kg (≈8 pencas)"},
-    {n:"Verdura para cenas (calabacita/mixta)", q:"~0.5 kg"},
-    {n:"Aguacate", q:"2 piezas"},
-    {n:"Manzana", q:"7 piezas (snack)"},
-    {n:"Fresas", q:"200 g (antojo)"},
+  {cat:"Snack (diario)", items:[
+    {n:"Queso panela light", q:"~0.6 kg (80 g/día)"},
+    {n:"Manzana", q:"7 piezas"},
   ]},
   {cat:"Despensa y antojo", items:[
-    {n:"Aceite de oliva", q:"frasco"},
-    {n:"Aceite de ajonjolí + salsas (soya baja en sodio, ostras, teriyaki, mirin)", q:"según la comida que elijas"},
     {n:"Chocolate 70%", q:"1 tablilla (~110 g)"},
     {n:"Mazapán", q:"1 pieza"},
+    {n:"Fresas (antojo)", q:"200 g"},
+    {n:"Aceite de oliva", q:"frasco"},
+    {n:"Aceite de ajonjolí + salsas (soya, ostras, teriyaki, mirin, miso, dashi)", q:"según lo que elijas"},
     {n:"Limón, cebolla, jengibre, sal, especias", q:"al gusto"},
   ]},
 ];
@@ -838,6 +841,35 @@ const COMSHOP = {
   ],
 };
 
+// Compra de CENA (×7) por opción — se ajusta a la cena elegida en el Plan
+const CENSHOP = {
+  rotacion:[
+    {n:"Tilapia", q:"~0.3 kg (cruda)"},{n:"Pechuga de pollo", q:"~0.15 kg (cruda)"},{n:"Atún en agua", q:"1 lata"},
+    {n:"Huevo entero", q:"3 piezas"},{n:"Clara líquida pasteurizada", q:"~400 ml"},{n:"Queso panela light", q:"~120 g (cena huevos)"},
+    {n:"Nopal", q:"~0.8 kg"},{n:"Calabacita / verdura", q:"~0.35 kg"},{n:"Frijol", q:"~0.15 kg seco"},
+    {n:"Tortillas de maíz", q:"~5"},{n:"Aguacate", q:"2 piezas"},
+  ],
+  cenaBase:[
+    {n:"Tilapia / pescado blanco", q:"~0.95 kg (cruda)"},{n:"Nopal", q:"~1.05 kg (≈10 pencas)"},{n:"Frijol", q:"~0.2 kg seco"},
+    {n:"Tortillas de maíz", q:"7"},{n:"Aguacate", q:"2-3 piezas"},
+  ],
+  cenaPolloCalab:[
+    {n:"Pechuga de pollo", q:"~1 kg (cruda)"},{n:"Calabacitas", q:"~1.4 kg"},{n:"Frijol", q:"~0.2 kg seco"},{n:"Aguacate", q:"2-3 piezas"},
+  ],
+  cenaAtun:[
+    {n:"Atún en agua", q:"7 latas"},{n:"Verduras mixtas", q:"~1.05 kg"},{n:"Frijol", q:"~0.2 kg seco"},{n:"Aguacate", q:"2-3 piezas"},
+  ],
+  cenaHuevos:[
+    {n:"Huevo entero", q:"7 piezas"},{n:"Clara líquida pasteurizada", q:"~0.85 L"},{n:"Queso panela light", q:"~280 g"},
+    {n:"Nopal", q:"~1.05 kg"},{n:"Tortillas de maíz", q:"7"},
+  ],
+  sopaMiso:[
+    {n:"Pechuga de pollo", q:"~0.85 kg (cruda)"},{n:"Huevo entero", q:"7 piezas"},{n:"Clara líquida pasteurizada", q:"~250 ml"},
+    {n:"Cebolla", q:"~150 g"},{n:"Dashi kombu (alga)", q:"1 paquete"},{n:"Hojuelas de bonito", q:"1 paquete"},
+    {n:"Miso blanco", q:"1 envase"},{n:"Wakame seco", q:"1 paquete"},
+  ],
+};
+
 /* ---------- render: plan ---------- */
 function mealHTML(meal){
   const items = meal.items.map(it=>
@@ -895,12 +927,34 @@ function comidaMealHTML(meal){
     ${meal.note?`<div class="prep"><b>Nota:</b> ${meal.note}</div>`:""}
   </div>`;
 }
+let selectedCena = localStorage.getItem("dieta_cena") || "rotacion";
+function getCena(d){
+  if(selectedCena==="rotacion") return d.cena;
+  const c = CENAS.find(x=>x.id===selectedCena);
+  return (c && c.meal) ? c.meal : d.cena;
+}
+function cenaMealHTML(meal){
+  const items = meal.items.map(it=>
+    `<li class="item"><span class="qty">${it.q}</span><span class="food">${it.food}${it.tag?` <span class="tag">· ${it.tag}</span>`:""}</span></li>`).join("");
+  const opts = CENAS.map(c=>`<option value="${c.id}"${c.id===selectedCena?" selected":""}>${c.id==="rotacion"?c.optlabel:"Cena · "+c.optlabel}</option>`).join("");
+  return `<div class="meal">
+    <div class="meal-head">
+      <select class="bf-select" id="cenaSelect" aria-label="Elegir cena">${opts}</select>
+      <span class="meal-rule"></span>
+      <span class="meal-macros">${meal.m.kcal} kcal · ${meal.m.p}P · ${meal.m.f}G · ${meal.m.c}C</span>
+    </div>
+    <ul class="items">${items}</ul>
+    <div class="prep"><b>Elaboración:</b> ${meal.prep}</div>
+    ${meal.note?`<div class="prep"><b>Nota:</b> ${meal.note}</div>`:""}
+  </div>`;
+}
 function renderDay(i){
   currentDay = i;
   const d = DAYS[i];
   const bf = getBreakfast();
   const cm = getComida(d);
-  const t = sumMacros([bf.m, cm.m, M.snack.m, d.cena.m, d.antojo.m]);
+  const cn = getCena(d);
+  const t = sumMacros([bf.m, cm.m, M.snack.m, cn.m, d.antojo.m]);
   document.getElementById("day").innerHTML = `
     <div class="day-head">
       <span class="day-name">${d.dia}</span>
@@ -911,7 +965,7 @@ function renderDay(i){
       <span class="mf">${t.f.toFixed(0)} g grasa</span> ·
       <span class="mc">${t.c.toFixed(0)} g carbohidratos</span>
     </div>
-    ${breakfastMealHTML(bf)}${comidaMealHTML(cm)}${mealHTML(M.snack)}${mealHTML(d.cena)}${mealHTML(d.antojo)}`;
+    ${breakfastMealHTML(bf)}${comidaMealHTML(cm)}${mealHTML(M.snack)}${cenaMealHTML(cn)}${mealHTML(d.antojo)}`;
   document.querySelectorAll("#chips .chip").forEach((c,idx)=>c.classList.toggle("active",idx===i));
   const sel = document.getElementById("bfSelect");
   if(sel) sel.addEventListener("change",()=>{
@@ -924,6 +978,13 @@ function renderDay(i){
   if(csel) csel.addEventListener("change",()=>{
     selectedComida = csel.value;
     localStorage.setItem("dieta_comida", selectedComida);
+    renderDay(currentDay);
+    renderShop();
+  });
+  const cnsel = document.getElementById("cenaSelect");
+  if(cnsel) cnsel.addEventListener("change",()=>{
+    selectedCena = cnsel.value;
+    localStorage.setItem("dieta_cena", selectedCena);
     renderDay(currentDay);
     renderShop();
   });
@@ -957,7 +1018,9 @@ function renderShop(){
   const bfCat = { cat:`Desayuno ×7 · ${bf.optlabel.replace(/ ★$/,"")}`, items: BFSHOP[bf.id] || [] };
   const cm = COMIDAS.find(x=>x.id===selectedComida) || COMIDAS[0];
   const comCat = { cat:`Comida ×7 · ${cm.id==="rotacion"?"rotación":cm.optlabel}`, items: COMSHOP[selectedComida] || COMSHOP.rotacion };
-  const cats = [bfCat, comCat, ...SHOP];
+  const cn = CENAS.find(x=>x.id===selectedCena) || CENAS[0];
+  const cenCat = { cat:`Cena ×7 · ${cn.id==="rotacion"?"rotación":cn.optlabel}`, items: CENSHOP[selectedCena] || CENSHOP.rotacion };
+  const cats = [bfCat, comCat, cenCat, ...SHOP];
   document.getElementById("shop").innerHTML = cats.map((cat,ci)=>`
     <div class="cat">
       <div class="cat-name">${cat.cat}</div>
