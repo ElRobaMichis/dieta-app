@@ -264,7 +264,7 @@
   </section>
 
   <section id="compras" class="panel">
-    <div class="shop-intro">Compra semanal (cubre los 7 días). La sección de <b>Desayuno</b> se ajusta sola al que elijas en el Plan. Los checks se guardan en este dispositivo.</div>
+    <div class="shop-intro">Compra semanal (cubre los 7 días). Las secciones de <b>Desayuno</b> y <b>Comida</b> se ajustan solas a lo que elijas en el Plan. Los checks se guardan en este dispositivo.</div>
     <div class="shop-actions"><button class="lnk" id="reset">Limpiar todo</button></div>
     <div id="shop"></div>
   </section>
@@ -281,7 +281,7 @@
     Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
     Cara, papada y pecho: NO existe la reducción localizada — bajas grasa de TODO el cuerpo con este mismo plan. Camina a paso MODERADO (respiración acelerada, aún puedes hablar) y baja la SAL: desinflan la cara y reducen más la grasa visceral.<br>
     Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.<br>
-    <b style="color:var(--p)">app v12 · 18-jun-2026</b>
+    <b style="color:var(--p)">app v13 · 18-jun-2026</b>
   </footer>
 </div>
 
@@ -721,37 +721,33 @@ const RECIPES = [
 ];
 
 /* ---------- lista de compras ---------- */
-// Resto de la semana (comidas, cenas, snack, antojo) — NO incluye desayuno (ese es dinámico)
+// Resto de la semana (CENAS, snack, antojo, despensa) — el desayuno y la comida son dinámicos
 const SHOP = [
-  {cat:"Proteínas (comidas y cenas)", items:[
-    {n:"Pechuga de pollo", q:"~0.65 kg (cruda)"},
-    {n:"Tilapia / pescado blanco", q:"~0.45 kg (crudo)"},
-    {n:"Atún en agua", q:"3 latas"},
-    {n:"Huevo entero", q:"3 piezas (cenas)"},
-    {n:"Clara líquida pasteurizada", q:"~400 ml (cenas)"},
-    {n:"Queso panela light", q:"~0.7 kg (snack + cenas)"},
+  {cat:"Proteínas (cenas)", items:[
+    {n:"Tilapia / pescado blanco", q:"~0.35 kg (cruda)"},
+    {n:"Pechuga de pollo", q:"~0.2 kg (cruda, cena)"},
+    {n:"Atún en agua", q:"1 lata"},
+    {n:"Huevo entero", q:"3 piezas"},
+    {n:"Clara líquida pasteurizada", q:"~400 ml"},
+    {n:"Queso panela light", q:"~0.7 kg (snack diario + cenas)"},
   ]},
-  {cat:"Cereales y leguminosas", items:[
-    {n:"Arroz", q:"200 g (crudo)"},
-    {n:"Frijol (seco o de lata)", q:"0.4 kg seco · o frijoles ENTEROS Isadora 454 g (Walmart ~$17), enjuágalos"},
-    {n:"Tortillas de maíz", q:"1 paquete (~12-15)"},
-    {n:"Tostadas horneadas", q:"1 paquete (~10)"},
+  {cat:"Cereales y leguminosas (cenas)", items:[
+    {n:"Frijol (seco o de lata)", q:"~0.2 kg seco · o frijoles ENTEROS Isadora (enjuágalos)"},
+    {n:"Tortillas de maíz", q:"~7 piezas"},
   ]},
   {cat:"Frutas y verduras", items:[
-    {n:"Verduras mixtas (zanahoria/calabaza/ejote)", q:"~1.1 kg"},
-    {n:"Calabacitas", q:"~250 g"},
     {n:"Nopal", q:"~0.8 kg (≈8 pencas)"},
-    {n:"Aguacate", q:"3 piezas"},
+    {n:"Verdura para cenas (calabacita/mixta)", q:"~0.5 kg"},
+    {n:"Aguacate", q:"2 piezas"},
     {n:"Manzana", q:"7 piezas (snack)"},
     {n:"Fresas", q:"200 g (antojo)"},
   ]},
   {cat:"Despensa y antojo", items:[
-    {n:"Aceite de oliva", q:"~20 ml/semana"},
-    {n:"Aceite de sésamo", q:"frasco pequeño"},
-    {n:"Salsa de soya baja en sodio + salsa de ostra", q:"1 c/u"},
+    {n:"Aceite de oliva", q:"frasco"},
+    {n:"Aceite de ajonjolí + salsas (soya baja en sodio, ostras, teriyaki, mirin)", q:"según la comida que elijas"},
     {n:"Chocolate 70%", q:"1 tablilla (~110 g)"},
     {n:"Mazapán", q:"1 pieza"},
-    {n:"Limón, cebolla, cilantro, sal, especias", q:"al gusto"},
+    {n:"Limón, cebolla, jengibre, sal, especias", q:"al gusto"},
   ]},
 ];
 
@@ -802,6 +798,43 @@ const BFSHOP = {
     {n:"Clara líquida pasteurizada", q:"~700 ml (o 21 huevos)"},
     {n:"Aguacate", q:"2 piezas"},{n:"Papaya", q:"1 mediana-grande (~1.3 kg)"},
     {n:"Gelatina sin azúcar (D'Gari/Jell-O)", q:"1-2 cajas"},
+  ],
+};
+
+// Compra de COMIDA (×7) por opción — se ajusta a la comida elegida en el Plan
+const COMSHOP = {
+  rotacion:[
+    {n:"Pechuga de pollo", q:"~0.5 kg (cruda)"},{n:"Tilapia", q:"~0.2 kg (cruda)"},{n:"Atún en agua", q:"2 latas"},
+    {n:"Arroz", q:"~150 g (crudo)"},{n:"Frijol", q:"~0.25 kg seco"},{n:"Verduras mixtas", q:"~1 kg"},
+    {n:"Tortillas de maíz", q:"3"},{n:"Tostadas horneadas", q:"4 (~½ paquete)"},{n:"Aguacate", q:"1 pieza"},
+  ],
+  base:[
+    {n:"Pechuga de pollo", q:"~0.85 kg (cruda)"},{n:"Arroz", q:"250 g (crudo)"},{n:"Frijol", q:"~0.25 kg seco"},
+    {n:"Verduras mixtas", q:"~1.05 kg"},{n:"Aceite de oliva", q:"~35 ml"},
+  ],
+  tacos:[
+    {n:"Pechuga de pollo", q:"~0.9 kg (cruda)"},{n:"Tortillas de maíz", q:"21 (~1.5 paquetes)"},{n:"Frijol", q:"~0.22 kg seco"},
+    {n:"Verduras mixtas", q:"~0.7 kg"},{n:"Aguacate", q:"2-3 piezas"},
+  ],
+  tostadasAtun:[
+    {n:"Atún en agua", q:"7 latas"},{n:"Tostadas horneadas", q:"14 (~1 paquete)"},{n:"Frijol", q:"~0.25 kg seco"},
+    {n:"Verduras (lechuga/jitomate/pepino)", q:"~0.85 kg"},{n:"Aguacate", q:"2-3 piezas"},
+  ],
+  tilapiaArroz:[
+    {n:"Tilapia / pescado blanco", q:"~1.1 kg (cruda)"},{n:"Arroz", q:"300 g (crudo)"},{n:"Frijol", q:"~0.22 kg seco"},
+    {n:"Verduras mixtas", q:"~1.05 kg"},{n:"Aceite de oliva", q:"~30 ml"},
+  ],
+  tinga:[
+    {n:"Pechuga de pollo", q:"~1.5 kg (cruda)"},{n:"Jitomate", q:"~1.05 kg"},{n:"Cebolla", q:"~420 g"},
+    {n:"Tostadas Sanissimo horneadas", q:"21 (~1.5 paquetes)"},{n:"Yogur griego FAGE 0%", q:"~280 g"},{n:"Salsa Worcestershire", q:"1 frasco"},
+  ],
+  salteado:[
+    {n:"Pechuga de pollo", q:"~1.2 kg (cruda)"},{n:"Brócoli", q:"~1.4 kg"},{n:"Pimiento morrón", q:"~560 g"},{n:"Cebolla", q:"~350 g"},
+    {n:"Salsa de ostras + soya baja en sodio", q:"1 c/u"},{n:"Aceite de ajonjolí + vinagre de arroz", q:"1 c/u"},
+  ],
+  teriyaki:[
+    {n:"Pechuga de pollo", q:"~1.4 kg (cruda)"},{n:"Brócoli", q:"~1.05 kg"},{n:"Pimiento morrón", q:"~560 g"},{n:"Cebolla", q:"~280 g"},
+    {n:"Salsa teriyaki + mirin", q:"1 c/u"},{n:"Aceite de ajonjolí, vinagre de arroz y jengibre", q:"al gusto"},
   ],
 };
 
@@ -892,6 +925,7 @@ function renderDay(i){
     selectedComida = csel.value;
     localStorage.setItem("dieta_comida", selectedComida);
     renderDay(currentDay);
+    renderShop();
   });
 }
 function renderChips(){
@@ -921,7 +955,9 @@ function renderShop(){
   const saved = JSON.parse(localStorage.getItem("dieta_shop")||"{}");
   const bf = getBreakfast();
   const bfCat = { cat:`Desayuno ×7 · ${bf.optlabel.replace(/ ★$/,"")}`, items: BFSHOP[bf.id] || [] };
-  const cats = [bfCat, ...SHOP];
+  const cm = COMIDAS.find(x=>x.id===selectedComida) || COMIDAS[0];
+  const comCat = { cat:`Comida ×7 · ${cm.id==="rotacion"?"rotación":cm.optlabel}`, items: COMSHOP[selectedComida] || COMSHOP.rotacion };
+  const cats = [bfCat, comCat, ...SHOP];
   document.getElementById("shop").innerHTML = cats.map((cat,ci)=>`
     <div class="cat">
       <div class="cat-name">${cat.cat}</div>
