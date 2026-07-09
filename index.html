@@ -281,7 +281,7 @@
     Los macros son valores de referencia (±10-15%). La báscula te da consistencia, no el gramo exacto.<br>
     Cara, papada y pecho: NO existe la reducción localizada — bajas grasa de TODO el cuerpo con este mismo plan. Camina a paso MODERADO (respiración acelerada, aún puedes hablar) y baja la SAL: desinflan la cara y reducen más la grasa visceral.<br>
     Check-in: martes 1 de julio. · Plan de bienestar, no sustituye a tu médico.<br>
-    <b style="color:var(--p)">app v17 · 8-jul-2026</b>
+    <b style="color:var(--p)">app v18 · 9-jul-2026</b>
   </footer>
 </div>
 
@@ -527,6 +527,18 @@ const COMIDAS = [
       {q:"1/2 cdta",food:"Aceite de ajonjolí",tag:"al final"},
     ],
     prep:"Saltea cebolla, jengibre y pimiento; agrega el pollo y el brócoli; glasea con teriyaki + mirin + vinagre y, fuera del fuego, el aceite de ajonjolí. (Receta completa en Recetas.)" } },
+  { id:"fajitas", optlabel:"Fajitas de pollo con tortillas y frijol", meal:{
+    name:"Comida · Fajitas de pollo", m:{kcal:496,p:47.5,f:11.8,c:51.1},
+    items:[
+      {q:"170 g",food:"Pechuga de pollo",tag:"cruda, en tiras de 1 cm"},
+      {q:"110 g",food:"Pimientos mixtos",tag:"rojo/verde/amarillo, en tiras"},
+      {q:"40 g",food:"Cebolla blanca",tag:"en juliana"},
+      {q:"60 g",food:"Tortillas de maíz",tag:"Ochoa/Mission blanca = 2 pzas · Susalia nopal = 4 pzas"},
+      {q:"45 g",food:"Frijol de la olla",tag:"escurrido"},
+      {q:"5 g",food:"Aceite de oliva",tag:"1 cdita rasa, EXACTA"},
+      {q:"15 g",food:"Jugo de limón",tag:"+ 1 diente de ajo y especias"},
+    ],
+    prep:"Marina pollo, pimientos y cebolla en limón + ajo + sal, pimienta, paprika y comino (SIN el aceite) 30 min en refri. Sella el pollo con la cdita de aceite, agrega las verduras 3-4 min a fuego alto. La grasa va a 0.2 g del tope: hoy sin aguacate, queso ni crema. (Receta completa en Recetas.)" } },
 ];
 
 /* ---------- cenas intercambiables (global, como el desayuno y la comida) ---------- */
@@ -916,6 +928,27 @@ const RECIPES = [
      "Cero cocción: si ya tienes el pollo del domingo, esta cena toma 5 minutos.",
    ],
    tip:"La proteína más alta del grupo (40 g) en 330 kcal. El FAGE con mostaza y limón sabe a aderezo ranch: mismo gusto cremoso que la mayo con ~90 kcal menos por porción."},
+
+  {name:"Fajitas de pollo con tortillas y frijol", meta:"Comida · 496 kcal · 47.5 g proteína · 11.8 g grasa · 51 g carbos · ~13 g fibra con Susalia",
+   ing:[
+     {q:"170 g",food:"Pechuga de pollo cruda",tag:"en tiras de 1 cm × 6-8 cm"},
+     {q:"110 g",food:"Pimientos mixtos",tag:"rojo/verde/amarillo, en tiras; sin semillas ni venas"},
+     {q:"40 g",food:"Cebolla blanca",tag:"en medias lunas delgadas"},
+     {q:"60 g",food:"Tortillas de maíz",tag:"Ochoa o Mission blanca = 2 pzas · Susalia nopal = 4 pzas (más fibra)"},
+     {q:"45 g",food:"Frijol de la olla",tag:"escurrido, calentado sin freír"},
+     {q:"5 g",food:"Aceite de oliva",tag:"1 cdita rasa — pésala, es el tope de grasa"},
+     {q:"15 g",food:"Jugo de limón",tag:"½–1 limón"},
+     {q:"1 diente",food:"Ajo picado fino"},
+     {q:"—",food:"Sal ¼ cdta · pimienta, paprika y comino ⅛ cdta c/u"},
+   ],
+   steps:[
+     "MARINADO: mezcla limón, ajo y especias (SIN el aceite — se reserva para el sartén y así rinde). Agrega pollo, pimientos y cebolla; revuelve, tapa y refrigera 30 min (máx 2 h, o el limón 'cuece' el pollo).",
+     "Calienta un sartén antiadherente GRANDE a fuego medio-alto con la cdita de aceite. Escurre un poco el marinado y pon SOLO el pollo en una capa: 2 min sin mover para que dore, voltea, 1-2 min más.",
+     "Agrega cebolla y pimientos, sube el fuego y saltea 3-4 min moviendo: verduras brillantes pero crujientes, pollo sin rosa por dentro (corta la tira más gruesa para verificar).",
+     "Calienta las tortillas en comal seco 30 seg por lado y el frijol solo, sin freír (chorrito de agua si está seco).",
+     "Sirve y taquea. Extras sin costo: más limón, cilantro y pico de gallo sin aceite.",
+   ],
+   tip:"La grasa queda en 11.8 g — a 0.2 g de tu tope: este día NO lleva aguacate, queso ni crema. Pesa la tortilla hasta 60 g, no cuentes piezas: con Susalia nopal son 4 tortillitas y la comida sube a ~13 g de fibra (la más saciante del plan). Receta base de Nutrioli, macros recalculados alimento por alimento."},
 ];
 
 /* ---------- lista de compras ---------- */
@@ -1019,6 +1052,11 @@ const COMSHOP = {
   teriyaki:[
     {n:"Pechuga de pollo", q:"~1.4 kg (cruda)"},{n:"Brócoli", q:"~1.05 kg"},{n:"Pimiento morrón", q:"~560 g"},{n:"Cebolla", q:"~280 g"},
     {n:"Salsa teriyaki + mirin", q:"1 c/u"},{n:"Aceite de ajonjolí, vinagre de arroz y jengibre", q:"al gusto"},
+  ],
+  fajitas:[
+    {n:"Pechuga de pollo", q:"~1.2 kg (cruda)"},{n:"Pimientos (rojo/verde/amarillo)", q:"~0.8 kg"},{n:"Cebolla blanca", q:"~300 g"},
+    {n:"Tortillas de maíz — Ochoa, Mission blanca o Susalia nopal", q:"~420 g (14 normales o 28 Susalia)"},{n:"Frijol", q:"~0.12 kg seco"},
+    {n:"Limones", q:"4-7 piezas"},{n:"Ajo", q:"1 cabeza"},{n:"Aceite de oliva", q:"~35 ml"},{n:"Paprika y comino", q:"al gusto"},
   ],
 };
 
